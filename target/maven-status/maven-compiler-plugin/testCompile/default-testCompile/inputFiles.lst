@@ -1,1 +1,4 @@
-/mnt/Storage/VSCode/JavaProjects/JankDB/src/test/java/jankdb/JankDBTest.java
+/mnt/Storage/VSCode/JavaProjects/JankDB/src/test/java/jankdb/JankDBTestSuite.java
+/mnt/Storage/VSCode/JavaProjects/JankDB/src/test/java/jankdb/TableTest.java
+/mnt/Storage/VSCode/JavaProjects/JankDB/src/test/java/jankdb/RecordTest.java
+/mnt/Storage/VSCode/JavaProjects/JankDB/src/test/java/jankdb/DBFileTest.java

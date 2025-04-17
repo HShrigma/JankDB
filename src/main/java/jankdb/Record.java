@@ -51,7 +51,7 @@ public class Record {
                 sanitized.append(pair);
             }
         }
-        System.out.println("sanitized to str: " + sanitized.toString());
+
         return sanitized.toString();
     }
 
@@ -92,7 +92,7 @@ public class Record {
 
     @Override
     public String toString() {
-        System.out.println(GetMapSerialized());
+        // System.out.println(GetMapSerialized());
         return GetMapSerialized();
     }
     // END Getters & Setters -----------------------------------

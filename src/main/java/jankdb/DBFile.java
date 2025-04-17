@@ -78,11 +78,8 @@ public class DBFile {
     public void StoreFile() {
         try {
             File toStore = new File(GetFullFilePath());
-            if (toStore.createNewFile()) {
-                System.out.println("Created new file");
-            } else {
-                System.out.println("File exists already");
-            }
+            toStore.createNewFile();
+            
             FileWriter os = new FileWriter(toStore);
             os.write(DataToString());
             os.close();
@@ -95,11 +92,7 @@ public class DBFile {
     public void EmptyFile() {
         try {
             File toStore = new File(GetFullFilePath());
-            if (toStore.createNewFile()) {
-                System.out.println("Created new file");
-            } else {
-                System.out.println("File exists already");
-            }
+            toStore.createNewFile();
             PrintWriter pw = new PrintWriter(GetFullFilePath());
             pw.close();
         } catch (Exception e) {

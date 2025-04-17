@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.nio.file.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -26,15 +28,15 @@ public class JankDBTest {
     @Test
     public void testDBFileHasLabelIsValid() {
         DBFile f = new DBFile("test");
-        assertEquals("test", f.GetLabel(), "DBFile: Gets Label");
+        assertEquals("test.txt", f.GetLabel(), "DBFile: Gets Label");
     }
 
     @Test
     public void testDBFileCanSetLabel() {
         DBFile f = new DBFile("test");
-        assertEquals("test", f.GetLabel());
+        assertEquals("test.txt", f.GetLabel());
         f.SetLabel("new");
-        assertEquals("new", f.GetLabel(), "DBFile: Sets Label");
+        assertEquals("new.txt", f.GetLabel(), "DBFile: Sets Label");
     }
 
     @Test
@@ -66,22 +68,27 @@ public class JankDBTest {
     @Test
     public void testDBFileaHasData() {
         DBFile f = new DBFile("test", "file");
-        assertEquals("", f.GetData(), "DBFile: Has Data");
+        boolean hasData = false;
+        try {
+            hasData = f.GetData().isEmpty();
+        } finally {
+            assertTrue(hasData, "DBFile: Data is not null");
+        }
     }
 
     @Test
-    public void testDBFileaCanWriteData() {
+    public void testDBFileaCanAddData() {
         DBFile f = new DBFile("test", "file");
         String dataStr = "Data written to";
-        f.WriteData(dataStr);
-        assertEquals(dataStr, f.GetData(), "DBFile: Can Write Data");
+        f.AddData(dataStr);
+        assertEquals(dataStr, f.GetData().get(0), "DBFile: Can Add Data");
     }
 
     @Test
     public void testDBFileCanStoreFile() {
         DBFile f = new DBFile("test", "store/");
         String dataStr = "Data Stored persistently!";
-        f.WriteData(dataStr);
+        f.AddData(dataStr);
         f.StoreFile();
         boolean fileFound = false;
         try {
@@ -98,21 +105,57 @@ public class JankDBTest {
 
     @Test
     public void testDBFileStoresAccurately() {
-        DBFile f = new DBFile("test", "store/");
-        String dataStr = "Data Stored persistently!";
-        f.WriteData(dataStr);
+        DBFile f = new DBFile("test1", "store/");
+        List<String> dataStrs = new ArrayList<String>();
+        dataStrs.add("Data 1!");
+        dataStrs.add("Data 2!");
+
+        f.AddData(dataStrs.get(0));
+        f.AddData(dataStrs.get(1));
+
         f.StoreFile();
         String fileData = "";
+        String expectedData = dataStrs.get(0) + dataStrs.get(1);
         // Read the file contents
         try {
             BufferedReader reader = new BufferedReader(new FileReader(f.GetFullFilePath()));
-            fileData = reader.readLine(); // Reads first line (adjust if multiline)
+            for (String item : reader.lines().toList()) {
+                fileData += item;
+            }
             reader.close();
 
         } catch (Exception e) {
             System.err.println(e.getMessage());
         } finally {
-            assertEquals(dataStr, fileData); // Compare with expected data
+            assertEquals(expectedData, fileData); // Compare with expected data
+        }
+    }
+
+    @Test
+    public void testDBFileCanDeleteData() {
+        DBFile f = new DBFile("test2", "store/");
+        List<String> dataStrs = new ArrayList<String>();
+        dataStrs.add("Data 1!");
+        dataStrs.add("Data 2!");
+
+        f.AddData(dataStrs.get(0));
+        f.AddData(dataStrs.get(1));
+
+        f.StoreFile();
+        f.EmptyFile();
+        String fileData = "";
+        // Read the file contents
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(f.GetFullFilePath()));
+            for (String item : reader.lines().toList()) {
+                fileData += item;
+            }
+            reader.close();
+
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        } finally {
+            assertEquals("", fileData); // Compare with expected data
         }
     }
 }

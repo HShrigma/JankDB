@@ -30,4 +30,23 @@ public class JankDBTest {
         f.SetLabel("new");
         assertEquals("new", f.GetLabel());
     }
+    @Test
+    public void testDBFileHasFilePathConstructor() {
+        DBFile f = new DBFile("", "");
+        assertNotEquals(null, f);
+    }
+
+    @Test
+    public void testDBFileHasFilePathIsValid() {
+        DBFile f = new DBFile("test", "file");
+        assertEquals("file", f.GetFilePath());
+    }
+
+    @Test
+    public void testDBFileCanSetFilePath(){
+        DBFile f = new DBFile("test", "file");
+        assertEquals("file", f.GetFilePath());
+        f.SetFilePath("new");
+        assertEquals("new", f.GetFilePath());
+    }
 }

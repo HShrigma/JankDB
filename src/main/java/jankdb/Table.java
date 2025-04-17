@@ -30,6 +30,35 @@ public class Table {
         records.add(r);
         dbFile.AddData(records.get(records.size() - 1).toString());
     }
+
+    public void DeleteRecord(int index) {
+        if (index > -1 && index < records.size()) {
+            records.remove(index);
+        }
+    }
+
+    List<Record> FindByKey(String key, String value) {
+
+        List<Record> res = new ArrayList<Record>();
+        for (Record record : records) {
+            if (record.GetData().keySet().contains(key)) {
+                if (record.GetData().get(key).equals(value)) {
+                    res.add(record);
+                }
+            }
+        }
+        return res;
+    }
+
+    void UpdateRecord(int index, Record newData) {
+        if (index > -1 && index < records.size()) {
+            records.set(index, newData);
+        }
+    }
+
+    public int Size() {
+        return records.size();
+    }
     // END Record methods----------------------------------------
 
     // DBFile methods ----------------------------------------
@@ -48,12 +77,6 @@ public class Table {
             reader.close();
         } catch (Exception e) {
             System.err.println("Table:Load: Error occured when getting data");
-        }
-    }
-
-    public void DeleteRecord(int index) {
-        if (index > -1 && index < records.size()) {
-            records.remove(index);
         }
     }
 

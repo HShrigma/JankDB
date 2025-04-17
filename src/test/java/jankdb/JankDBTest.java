@@ -307,4 +307,75 @@ public class JankDBTest {
 
         assertEquals(expected.toString(), t.GetRecords().toString());
     }
+
+    @Test
+    public void testTableCanGetSize() {
+        Table t = new Table("testTable");
+        assertEquals(0, t.Size());
+        t.AddRecord(new Record("name=Bob;age=32;"));
+        assertEquals(1, t.Size());
+        t.AddRecord(new Record("name=Alice;age=40;"));
+        assertEquals(2, t.Size());
+        t.AddRecord(new Record("name=Remove;age=29"));
+        assertEquals(3, t.Size());
+    }
+
+    @Test
+    public void testTableCanFindByKey() {
+        Table t = new Table("testFind");
+        t.AddRecord(new Record("name=Bob;age=32;"));
+        t.AddRecord(new Record("name=Alice;age=40;"));
+        t.AddRecord(new Record("name=Bob;age=25;"));
+
+        List<Record> result = t.FindByKey("name", "Bob");
+
+        assertEquals(2, result.size(), "FindByKey: Should find 2 records with name=Bob");
+        for (Record r : result) {
+            assertEquals("Bob", r.GetData().get("name"));
+        }
+    }
+
+    @Test
+    public void testTableFindByKeyWithNoMatchReturnsEmpty() {
+        Table t = new Table("testFindEmpty");
+        t.AddRecord(new Record("name=Bob;age=32;"));
+        List<Record> result = t.FindByKey("name", "Charlie");
+
+        assertTrue(result.isEmpty(), "FindByKey: Should return empty list when no matches");
+    }
+
+    @Test
+    public void testTableFindByNonexistentKeyReturnsEmpty() {
+        Table t = new Table("testFindKeyMissing");
+        t.AddRecord(new Record("name=Bob;age=32;"));
+        List<Record> result = t.FindByKey("height", "180");
+
+        assertTrue(result.isEmpty(), "FindByKey: Should return empty list when key doesn't exist");
+    }
+
+    @Test
+    public void testTableCanUpdateRecord() {
+        Table t = new Table("testUpdate");
+        t.AddRecord(new Record("name=Bob;age=32;"));
+        t.AddRecord(new Record("name=Alice;age=40;"));
+
+        Record updated = new Record("name=Charlie;age=28;");
+        t.UpdateRecord(1, updated);
+
+        assertEquals("Charlie", t.GetRecords().get(1).GetData().get("name"));
+        assertEquals("28", t.GetRecords().get(1).GetData().get("age"));
+    }
+
+    @Test
+    public void testTableUpdateOutOfBoundsDoesNothing() {
+        Table t = new Table("testUpdateOutOfBounds");
+        t.AddRecord(new Record("name=Bob;age=32;"));
+
+        Record updated = new Record("name=ShouldNotExist;age=0;");
+        t.UpdateRecord(10, updated); // Out of bounds
+
+        assertEquals("Bob", t.GetRecords().get(0).GetData().get("name"));
+        assertEquals(1, t.Size());
+    }
+
 }

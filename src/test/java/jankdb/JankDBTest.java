@@ -161,12 +161,13 @@ public class JankDBTest {
             assertEquals("", fileData); // Compare with expected data
         }
     }
+
     @Test
     public void testRecordCanBeCreatedEmpty() {
         Record r = new Record();
         assertTrue(r.GetData().isEmpty(), "Record should be empty on default constructor");
     }
-    
+
     @Test
     public void testRecordCanBeCreatedFromMap() {
         Map<String, String> input = new HashMap<>();
@@ -176,7 +177,7 @@ public class JankDBTest {
         assertEquals("Alice", r.GetData().get("name"));
         assertEquals("30", r.GetData().get("age"));
     }
-    
+
     @Test
     public void testRecordSerializesToStringCorrectly() {
         Map<String, String> input = new HashMap<>();
@@ -185,7 +186,7 @@ public class JankDBTest {
         String s = r.toString();
         assertEquals("key=value;", s);
     }
-    
+
     @Test
     public void testRecordDeserializesFromString() {
         String input = "name=Bob;age=25;";
@@ -193,7 +194,7 @@ public class JankDBTest {
         assertEquals("Bob", r.GetData().get("name"));
         assertEquals("25", r.GetData().get("age"));
     }
-    
+
     @Test
     public void testRecordSerializationIsReversible() {
         Map<String, String> input = new HashMap<>();
@@ -204,40 +205,106 @@ public class JankDBTest {
         Record r2 = new Record(serialized);
         assertEquals(r1.GetData(), r2.GetData(), "Deserialized record should match original");
     }
-    
+
     @Test
     public void testRecordHandlesTrailingSemicolonGracefully() {
         Record r = new Record("foo=bar;baz=qux;");
         assertEquals("bar", r.GetData().get("foo"));
         assertEquals("qux", r.GetData().get("baz"));
     }
-    
+
     @Test
     public void testRecordIgnoresEmptyFields() {
         Record r = new Record("key1=value1;asdsadsa;123123;; ;key2=value2;");
         assertEquals("value1", r.GetData().get("key1"));
         assertEquals("value2", r.GetData().get("key2"));
     }
-    
+
     @Test
-    public void testTableConstructs(){
+    public void testTableConstructs() {
         assertNotNull(new Table("testTable"), "Table: Can be created");
     }
 
     @Test
-    public void testTableCanGetEmptyRecords(){
-       assertTrue(new Table("testTable").GetRecords().isEmpty(),"Table: Can Get Empty Record"); 
+    public void testTableCanGetEmptyRecords() {
+        assertTrue(new Table("testTable").GetRecords().isEmpty(), "Table: Can Get Empty Record");
     }
 
     @Test
-    public void testTableCanAddRecord(){
+    public void testTableCanAddRecord() {
         Table t = new Table("testTable");
         t.AddRecord(new Record("name=Bob;age=2;"));
         assertEquals(t.GetRecords().get(0).toString(), "name=Bob;age=2;");
     }
+
     @Test
-    public void testTableCanSave(){
+    public void testTableCanSave() {
         Table t = new Table("testTable");
-        t.AddRecord(new Record("name=Bob;age=2;")); 
+        t.AddRecord(new Record("name=Bob;age=32;"));
+        t.AddRecord(new Record("name=Alice;age=40;"));
+        t.Save();
+        boolean stored = false;
+        try {
+            FileReader i = new FileReader("src/main/resources/store/testTable.txt");
+            i.close();
+            stored = true;
+        } catch (Exception e) {
+            System.err.println("An error occured");
+            e.printStackTrace();
+        } finally {
+            assertTrue(stored);
+        }
+    }
+
+    @Test
+    public void testTableCanSaveAccurately() {
+        Table t = new Table("testTable");
+        t.AddRecord(new Record("name=Bob;age=32;"));
+        t.AddRecord(new Record("name=Alice;age=40;"));
+        t.Save();
+        StringBuilder fileData = new StringBuilder();
+        StringBuilder expectedData = new StringBuilder();
+        for (var record : t.GetRecords()) {
+            expectedData.append(record.toString()).append('\n');
+        }
+        // Read the file contents
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/store/testTable.txt"));
+            for (String item : reader.lines().toList()) {
+                fileData.append(item).append('\n');
+            }
+            reader.close();
+
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        } finally {
+            assertEquals(expectedData.toString(), fileData.toString()); // Compare with expected data
+        }
+    }
+
+    @Test
+    public void testTableCanLoadAccurately() {
+        Table t = new Table("testTable");
+        t.AddRecord(new Record("name=Bob;age=32;"));
+        t.AddRecord(new Record("name=Alice;age=40;"));
+        t.Save();
+        Table t2 = new Table("testTable");
+        t2.Load();
+        assertEquals(t.GetRecords().toString(), t2.GetRecords().toString());
+    }
+
+    @Test
+    public void testTableCanRemoveRecords() {
+        Table t = new Table("testTable");
+        t.AddRecord(new Record("name=Bob;age=32;"));
+        t.AddRecord(new Record("name=Alice;age=40;"));
+        t.AddRecord(new Record("name=Remove;age=29"));
+        t.DeleteRecord(2);
+
+        List<Record> expected = new ArrayList<Record>();
+        expected.add(new Record("name=Bob;age=32;"));
+        expected.add(new Record("name=Alice;age=40;"));
+
+        assertEquals(expected.toString(), t.GetRecords().toString());
     }
 }

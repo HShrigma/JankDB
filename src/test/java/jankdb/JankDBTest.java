@@ -221,6 +221,23 @@ public class JankDBTest {
     
     @Test
     public void testTableConstructs(){
-        assertNotNull(new Table("testTable"));
+        assertNotNull(new Table("testTable"), "Table: Can be created");
+    }
+
+    @Test
+    public void testTableCanGetEmptyRecords(){
+       assertTrue(new Table("testTable").GetRecords().isEmpty(),"Table: Can Get Empty Record"); 
+    }
+
+    @Test
+    public void testTableCanAddRecord(){
+        Table t = new Table("testTable");
+        t.AddRecord(new Record("name=Bob;age=2;"));
+        assertEquals(t.GetRecords().get(0).toString(), "name=Bob;age=2;");
+    }
+    @Test
+    public void testTableCanSave(){
+        Table t = new Table("testTable");
+        t.AddRecord(new Record("name=Bob;age=2;")); 
     }
 }

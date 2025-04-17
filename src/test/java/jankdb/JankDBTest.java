@@ -19,7 +19,7 @@ public class JankDBTest {
     @Test
     public void testDBFileExists() {
         DBFile f = new DBFile();
-        assertNotEquals(null, f, "DBFile: Exists");
+        assertNotNull(f, "DBFile: Exists");
     }
 
     @Test
@@ -219,4 +219,8 @@ public class JankDBTest {
         assertEquals("value2", r.GetData().get("key2"));
     }
     
+    @Test
+    public void testTableConstructs(){
+        assertNotNull(new Table("testTable"));
+    }
 }

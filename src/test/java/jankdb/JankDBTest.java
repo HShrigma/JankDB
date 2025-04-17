@@ -2,12 +2,14 @@ package jankdb;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.nio.file.*;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -157,5 +159,22 @@ public class JankDBTest {
         } finally {
             assertEquals("", fileData); // Compare with expected data
         }
+    }
+
+    @Test
+    public void testRecordExists() {
+        assertNotNull(new Record());
+    }
+
+    @Test
+    public void testRecordHasDataConstructor() {
+        assertNotNull(new Record(new HashMap<String, String>()));
+    }
+
+    @Test
+    public void testRecordHasSerializedConstructor() {
+        String serialized = "name=Bob;age=30;";
+        assertNotNull(new Record(serialized));
+        assertEquals(serialized, new Record(serialized).toString());
     }
 }

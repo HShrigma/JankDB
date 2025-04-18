@@ -67,5 +67,4 @@ public class RecordTest {
         assertEquals("value1", r.GetData().get("key1"));
         assertEquals("value2", r.GetData().get("key2"));
     }
-
 }

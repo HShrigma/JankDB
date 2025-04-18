@@ -62,6 +62,9 @@ public class DBFile {
     public void AddData(String toWrite) {
         data.add(toWrite);
     }
+    public void DeleteData(){
+        data = new ArrayList<String>();
+    }
     // END Runtime Data I/O --------------------------------
 
     // File I/O --------------------------------------------

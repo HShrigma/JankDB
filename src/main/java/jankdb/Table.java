@@ -37,7 +37,7 @@ public class Table {
         }
     }
 
-    List<Record> FindByKey(String key, String value) {
+    List<Record> FindByKeyAndValue(String key, String value) {
 
         List<Record> res = new ArrayList<Record>();
         for (Record record : records) {
@@ -49,7 +49,16 @@ public class Table {
         }
         return res;
     }
+    List<Record> FindByKey(String key) {
 
+        List<Record> res = new ArrayList<Record>();
+        for (Record record : records) {
+            if (record.GetData().keySet().contains(key)) {
+                    res.add(record);
+            }
+        }
+        return res;
+    }
     void UpdateRecord(int index, Record newData) {
         if (index > -1 && index < records.size()) {
             records.set(index, newData);
@@ -63,6 +72,10 @@ public class Table {
 
     // DBFile methods ----------------------------------------
     public void Save() {
+        dbFile.DeleteData();
+        for (Record record : records) {
+            dbFile.AddData(record.toString());
+        }
         dbFile.EmptyFile();
         dbFile.StoreFile();
     }
@@ -79,7 +92,9 @@ public class Table {
             System.err.println("Table:Load: Error occured when getting data");
         }
     }
-
+    public void Flush(){
+        records = new ArrayList<Record>();
+    }
     // END DBFile methods ----------------------------------------
 
 }

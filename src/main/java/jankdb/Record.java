@@ -95,5 +95,15 @@ public class Record {
         // System.out.println(GetMapSerialized());
         return GetMapSerialized();
     }
+
     // END Getters & Setters -----------------------------------
+    // Data Operations -----------------------------------------
+    public void DeleteByKey(String key) {
+        data.remove(key);
+    }
+
+    public void AddKvP(String key, String value) {
+        data.put(key, value);
+    }
+    // END Data Operations -----------------------------------------
 }

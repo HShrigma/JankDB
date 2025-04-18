@@ -121,7 +121,7 @@ public class TableTest {
         t.AddRecord(new Record("name=Alice;age=40;"));
         t.AddRecord(new Record("name=Bob;age=25;"));
 
-        List<Record> result = t.FindByKey("name", "Bob");
+        List<Record> result = t.FindByKeyAndValue("name", "Bob");
 
         assertEquals(2, result.size(), "FindByKey: Should find 2 records with name=Bob");
         for (Record r : result) {
@@ -133,7 +133,7 @@ public class TableTest {
     public void testTableFindByKeyWithNoMatchReturnsEmpty() {
         Table t = new Table("testFindEmpty");
         t.AddRecord(new Record("name=Bob;age=32;"));
-        List<Record> result = t.FindByKey("name", "Charlie");
+        List<Record> result = t.FindByKeyAndValue("name", "Charlie");
 
         assertTrue(result.isEmpty(), "FindByKey: Should return empty list when no matches");
     }
@@ -142,7 +142,7 @@ public class TableTest {
     public void testTableFindByNonexistentKeyReturnsEmpty() {
         Table t = new Table("testFindKeyMissing");
         t.AddRecord(new Record("name=Bob;age=32;"));
-        List<Record> result = t.FindByKey("height", "180");
+        List<Record> result = t.FindByKeyAndValue("height", "180");
 
         assertTrue(result.isEmpty(), "FindByKey: Should return empty list when key doesn't exist");
     }

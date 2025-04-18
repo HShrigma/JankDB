@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class TableTest {
@@ -170,5 +171,45 @@ public class TableTest {
 
         assertEquals("Bob", t.GetRecords().get(0).GetData().get("name"));
         assertEquals(1, t.Size());
+    }
+        Table table;
+
+    @BeforeEach
+    void setUp() {
+        table = new Table("test");
+        table.Flush();
+    }
+
+    @Test
+    void testAddAndFindByKey() {
+        table.AddRecord(new Record("a=1;"));
+        List<Record> results = table.FindByKey("a");
+
+        assertEquals(1, results.size());
+        assertEquals("1", results.get(0).GetData().get("a"));
+    }
+
+    @Test
+    void testFindByKeyAndValue() {
+        table.AddRecord(new Record("k=v;"));
+        List<Record> results = table.FindByKeyAndValue("k", "v");
+
+        assertEquals(1, results.size());
+    }
+
+    @Test
+    void testUpdateRecord() {
+        table.AddRecord(new Record("z=9;"));
+        Record r = new Record("z=999;");
+        table.UpdateRecord(0, r);
+
+        assertEquals("999", table.GetRecords().get(0).GetData().get("z"));
+    }
+
+    @Test
+    void testFlushWipesRecords() {
+        table.AddRecord(new Record("m=n;"));
+        table.Flush();
+        assertEquals(0, table.GetRecords().size());
     }
 }

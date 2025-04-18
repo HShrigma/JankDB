@@ -1,4 +1,11 @@
 jankdb/Table.class
+jankdb/helpers/CLICommandRegistry$BaseCommands.class
+jankdb/helpers/CLICommandRegistry.class
+jankdb/helpers/CLICommandRegistry$Messages.class
+jankdb/helpers/CLICommandRegistry$CommandGuides.class
+jankdb/REPLCLIManager.class
+jankdb/helpers/CLICommandRegistry$CommandSizeRules.class
 jankdb/JankDB.class
 jankdb/DBFile.class
 jankdb/Record.class
+jankdb/helpers/CLICommandRegistry$ExecutionMessages.class

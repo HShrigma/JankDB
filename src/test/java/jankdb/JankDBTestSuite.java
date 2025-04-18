@@ -8,7 +8,8 @@ import org.junit.platform.suite.api.Suite;
 @SelectClasses({
         DBFileTest.class,
         RecordTest.class,
-        TableTest.class
+        TableTest.class,
+        REPLCLIManagerTest.class
 })
 
 public class JankDBTestSuite {

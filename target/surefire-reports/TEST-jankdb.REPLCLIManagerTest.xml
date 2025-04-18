@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="jankdb.TableTest" time="0.047" tests="17" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="jankdb.REPLCLIManagerTest" time="0.014" tests="10" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -52,21 +52,88 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="testFlushWipesRecords" classname="jankdb.TableTest" time="0.014"/>
-  <testcase name="testTableCanGetEmptyRecords" classname="jankdb.TableTest" time="0.0"/>
-  <testcase name="testTableCanGetSize" classname="jankdb.TableTest" time="0.001"/>
-  <testcase name="testTableCanSave" classname="jankdb.TableTest" time="0.005"/>
-  <testcase name="testTableCanRemoveRecords" classname="jankdb.TableTest" time="0.001"/>
-  <testcase name="testTableCanLoadAccurately" classname="jankdb.TableTest" time="0.002"/>
-  <testcase name="testFindByKeyAndValue" classname="jankdb.TableTest" time="0.001"/>
-  <testcase name="testTableConstructs" classname="jankdb.TableTest" time="0.0"/>
-  <testcase name="testUpdateRecord" classname="jankdb.TableTest" time="0.0"/>
-  <testcase name="testTableCanAddRecord" classname="jankdb.TableTest" time="0.0"/>
-  <testcase name="testTableFindByNonexistentKeyReturnsEmpty" classname="jankdb.TableTest" time="0.0"/>
-  <testcase name="testTableCanUpdateRecord" classname="jankdb.TableTest" time="0.0"/>
-  <testcase name="testTableFindByKeyWithNoMatchReturnsEmpty" classname="jankdb.TableTest" time="0.0"/>
-  <testcase name="testTableCanFindByKey" classname="jankdb.TableTest" time="0.001"/>
-  <testcase name="testTableCanSaveAccurately" classname="jankdb.TableTest" time="0.001"/>
-  <testcase name="testAddAndFindByKey" classname="jankdb.TableTest" time="0.0"/>
-  <testcase name="testTableUpdateOutOfBoundsDoesNothing" classname="jankdb.TableTest" time="0.0"/>
+  <testcase name="testDeleteCommandDeletesKey" classname="jankdb.REPLCLIManagerTest" time="0.005">
+    <system-out><![CDATA[Could not find <Key> And <Value>: delete_me. Adding to DB!
+Successfully added to DB!
+Searching for Key delete_me to delete...
+Found Key: delete_me!
+Deleting...
+Deletion was successful
+]]></system-out>
+  </testcase>
+  <testcase name="testHelpAndExitCommands" classname="jankdb.REPLCLIManagerTest" time="0.001">
+    <system-out><![CDATA[Listing all commands...
+Session terminated.
+Thank you for using JankDB!
+The program will now exit
+]]></system-out>
+    <system-err><![CDATA[GET returns the <Key> value (if found).
+SET updates the <Key> value to <Value> (if found).
+If not found, adds the <Key>:<Value> Pair to the database
+DEL deletes the associated <Key>:Value pair (if found).
+KEYS returns all keys in the database.
+SAVE saves all current operations to persistent storage.
+CLEAR removes all entries in the database.
+HELP lists all available actions.
+EXIT terminates the current session.
+]]></system-err>
+  </testcase>
+  <testcase name="testUpdateTable" classname="jankdb.REPLCLIManagerTest" time="0.001">
+    <system-out><![CDATA[Could not find <Key> And <Value>: x. Adding to DB!
+Successfully added to DB!
+Found <Key>: x. Value is now: 
+Successfully updated DB!
+]]></system-out>
+  </testcase>
+  <testcase name="testKeysCommandListsKeys" classname="jankdb.REPLCLIManagerTest" time="0.001">
+    <system-out><![CDATA[Could not find <Key> And <Value>: a. Adding to DB!
+Successfully added to DB!
+Could not find <Key> And <Value>: b. Adding to DB!
+Successfully added to DB!
+Retrieving all keys...
+key: a
+key: b
+Successfully retrieved all keys!
+]]></system-out>
+  </testcase>
+  <testcase name="testClearCommandWipesEverything" classname="jankdb.REPLCLIManagerTest" time="0.0">
+    <system-out><![CDATA[Could not find <Key> And <Value>: one. Adding to DB!
+Successfully added to DB!
+Could not find <Key> And <Value>: two. Adding to DB!
+Successfully added to DB!
+Clearing all Database entries...
+All Database entries cleared successfully!
+Remember to SAVE all changes!
+]]></system-out>
+  </testcase>
+  <testcase name="testAddToTable" classname="jankdb.REPLCLIManagerTest" time="0.0">
+    <system-out><![CDATA[Could not find <Key> And <Value>: foo. Adding to DB!
+Successfully added to DB!
+]]></system-out>
+  </testcase>
+  <testcase name="testInvalidCommandSize" classname="jankdb.REPLCLIManagerTest" time="0.001">
+    <system-out><![CDATA[SET usage...
+]]></system-out>
+    <system-err><![CDATA[Invalid size of command!
+]]></system-err>
+  </testcase>
+  <testcase name="testGetCommandFindsKey" classname="jankdb.REPLCLIManagerTest" time="0.001">
+    <system-out><![CDATA[Could not find <Key> And <Value>: luna. Adding to DB!
+Successfully added to DB!
+Attempting to find <Key>: luna...
+Found <Key>: luna
+luna=cat;
+]]></system-out>
+  </testcase>
+  <testcase name="testInitDBCreatesTableIfMissing" classname="jankdb.REPLCLIManagerTest" time="0.001">
+    <system-out><![CDATA[Table successfully loaded. Session has started
+]]></system-out>
+  </testcase>
+  <testcase name="testSaveAndLoadCycle" classname="jankdb.REPLCLIManagerTest" time="0.001">
+    <system-out><![CDATA[Could not find <Key> And <Value>: persist. Adding to DB!
+Successfully added to DB!
+Saving all changes to persistent storage...
+All changes successfully saved!
+]]></system-out>
+  </testcase>
 </testsuite>

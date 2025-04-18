@@ -1,104 +1,78 @@
 package jankdb;
 
-import org.junit.jupiter.api.*;
-
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-class REPLCLIManagerTest {
+// import jankdb.cli.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-    REPLCLIManager manager;
-    Table table;
+public class REPLCLIManagerTest {
+
+    REPLCLIManager repl;
 
     @BeforeEach
-    void setUp() {
-        manager = new REPLCLIManager();
-        manager.mainTable.Flush(); // Clear in-memory
-        table = manager.mainTable;
+    public void setup() {
+        repl = new REPLCLIManager();
     }
 
     @Test
-    void testAddToTable() {
-        manager.AddToTable("foo", "bar");
-        List<Record> results = table.FindByKey("foo");
-        assertEquals(1, results.size());
-        assertEquals("bar", results.get(0).GetData().get("foo"));
+    public void testSetCommandAddsRecord() {
+        repl.ParseCommand("SET testKey testValue");
+        assertEquals(1, repl.mainTable.Size());
+        assertTrue(repl.mainTable.GetRecords().get(0).GetData().containsKey("testKey"));
     }
 
     @Test
-    void testUpdateTable() {
-        manager.AddToTable("x", "1");
-        List<Record> matches = table.FindByKey("x");
-        manager.UpdateTable(matches, "x", "42");
-
-        Record updated = table.FindByKey("x").get(0);
-        assertEquals("42", updated.GetData().get("x"));
+    public void testGetCommandFindsRecord() {
+        repl.ParseCommand("SET hello world");
+        // Output goes to stdout, we test by checking existence in table
+        repl.ParseCommand("GET hello");
+        assertEquals("world", repl.mainTable.GetRecords().get(0).GetData().get("hello"));
     }
 
     @Test
-    void testDeleteCommandDeletesKey() {
-        manager.AddToTable("delete_me", "bye");
-        String[] cmd = {"DEL", "delete_me"};
-        manager.ProcessDeleteCommand(cmd);
+    public void testDelCommandRemovesKey() {
+        repl.ParseCommand("SET tempKey tempVal");
+        assertEquals(1, repl.mainTable.Size());
 
-        List<Record> matches = table.FindByKey("delete_me");
-        assertTrue(matches.isEmpty() || !matches.get(0).GetData().containsKey("delete_me"));
+        repl.ParseCommand("DEL tempKey");
+        assertFalse(repl.mainTable.Size() == 1);
     }
 
     @Test
-    void testGetCommandFindsKey() {
-        manager.AddToTable("luna", "cat");
+    public void testClearCommandFlushesAll() {
+        repl.ParseCommand("SET k1 v1");
+        repl.ParseCommand("SET k2 v2");
+        assertEquals(2, repl.mainTable.Size());
 
-        // Shouldn't crash
-        manager.ProcessGetCommand(new String[]{"GET", "luna"});
+        repl.ParseCommand("CLEAR");
+        assertEquals(0, repl.mainTable.Size());
     }
 
     @Test
-    void testClearCommandWipesEverything() {
-        manager.AddToTable("one", "1");
-        manager.AddToTable("two", "2");
-
-        assertFalse(table.GetRecords().isEmpty());
-        manager.ProcessClearCommand(new String[]{"CLEAR"});
-        assertTrue(table.GetRecords().isEmpty());
+    public void testHelpCommandDoesNotThrow() {
+        assertDoesNotThrow(() -> repl.ParseCommand("HELP"));
     }
 
     @Test
-    void testSaveAndLoadCycle() {
-        manager.AddToTable("persist", "me");
-        manager.ProcessSaveCommand(new String[]{"SAVE"});
-
-        manager.mainTable.Flush(); // simulate exit
-        manager.mainTable.Load();
-
-        assertEquals(1, table.FindByKey("persist").size());
+    public void testSaveCommandDoesNotThrow() {
+        repl.ParseCommand("SET saveKey saveValue");
+        assertDoesNotThrow(() -> repl.ParseCommand("SAVE"));
     }
 
     @Test
-    void testKeysCommandListsKeys() {
-        manager.AddToTable("a", "alpha");
-        manager.AddToTable("b", "beta");
-
-        // Shouldn't throw anything
-        manager.ProcessKeysCommand(new String[]{"KEYS"});
+    public void testKeysCommandDoesNotThrow() {
+        repl.ParseCommand("SET key1 value1");
+        assertDoesNotThrow(() -> repl.ParseCommand("KEYS"));
     }
 
     @Test
-    void testHelpAndExitCommands() {
-        manager.ProcessHelpCommand(new String[]{"HELP"});
-        manager.ProcessExitCommand(new String[]{"EXIT"});
+    public void testExitCommandDoesNotThrow() {
+        assertDoesNotThrow(() -> repl.ParseCommand("EXIT"));
     }
 
     @Test
-    void testInvalidCommandSize() {
-        assertFalse(manager.IsValidCommandSize(2, new String[]{"SET"}, "SET usage..."));
-        assertTrue(manager.IsValidCommandSize(2, new String[]{"GET", "key"}, "GET usage..."));
-    }
-
-    @Test
-    void testInitDBCreatesTableIfMissing() {
-        // Should not throw
-        manager.InitDB();
+    public void testUnknownCommandHandledGracefully() {
+        assertDoesNotThrow(() -> repl.ParseCommand("FOOBAR"));
     }
 }

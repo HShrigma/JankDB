@@ -49,7 +49,7 @@ public class Table {
         }
         return res;
     }
-    List<Record> FindByKey(String key) {
+    public List<Record> FindByKey(String key) {
 
         List<Record> res = new ArrayList<Record>();
         for (Record record : records) {
@@ -59,7 +59,7 @@ public class Table {
         }
         return res;
     }
-    void UpdateRecord(int index, Record newData) {
+    public void UpdateRecord(int index, Record newData) {
         if (index > -1 && index < records.size()) {
             records.set(index, newData);
         }

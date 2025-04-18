@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="jankdb.REPLCLIManagerTest" time="0.014" tests="10" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="jankdb.REPLCLIManagerTest" time="0.018" tests="9" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -11,7 +11,7 @@
     <property name="java.vm.specification.version" value="21"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-21-openjdk/lib"/>
-    <property name="sun.java.command" value="/mnt/Storage/VSCode/JavaProjects/JankDB/target/surefire/surefirebooter-20250418144512272_3.jar /mnt/Storage/VSCode/JavaProjects/JankDB/target/surefire 2025-04-18T14-45-12_223-jvmRun1 surefire-20250418144512272_1tmp surefire_0-20250418144512272_2tmp"/>
+    <property name="sun.java.command" value="/mnt/Storage/VSCode/JavaProjects/JankDB/target/surefire/surefirebooter-20250418154313938_3.jar /mnt/Storage/VSCode/JavaProjects/JankDB/target/surefire 2025-04-18T15-43-13_893-jvmRun1 surefire-20250418154313938_1tmp surefire_0-20250418154313938_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/mnt/Storage/VSCode/JavaProjects/JankDB/target/test-classes:/mnt/Storage/VSCode/JavaProjects/JankDB/target/classes:/home/Olinezko/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.0/junit-jupiter-api-5.10.0.jar:/home/Olinezko/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/home/Olinezko/.m2/repository/org/junit/platform/junit-platform-commons/1.10.0/junit-platform-commons-1.10.0.jar:/home/Olinezko/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/home/Olinezko/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.10.0/junit-jupiter-engine-5.10.0.jar:/home/Olinezko/.m2/repository/org/junit/platform/junit-platform-engine/1.10.0/junit-platform-engine-1.10.0.jar:/home/Olinezko/.m2/repository/org/junit/platform/junit-platform-suite/1.10.0/junit-platform-suite-1.10.0.jar:/home/Olinezko/.m2/repository/org/junit/platform/junit-platform-suite-api/1.10.0/junit-platform-suite-api-1.10.0.jar:/home/Olinezko/.m2/repository/org/junit/platform/junit-platform-suite-engine/1.10.0/junit-platform-suite-engine-1.10.0.jar:/home/Olinezko/.m2/repository/org/junit/platform/junit-platform-suite-commons/1.10.0/junit-platform-suite-commons-1.10.0.jar:/home/Olinezko/.m2/repository/org/junit/platform/junit-platform-launcher/1.10.0/junit-platform-launcher-1.10.0.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -26,7 +26,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="/mnt/Storage/VSCode/JavaProjects/JankDB/target/surefire/surefirebooter-20250418144512272_3.jar"/>
+    <property name="surefire.real.class.path" value="/mnt/Storage/VSCode/JavaProjects/JankDB/target/surefire/surefirebooter-20250418154313938_3.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="21.0.7+6"/>
     <property name="user.name" value="Olinezko"/>
@@ -52,22 +52,9 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="testDeleteCommandDeletesKey" classname="jankdb.REPLCLIManagerTest" time="0.005">
-    <system-out><![CDATA[Could not find <Key> And <Value>: delete_me. Adding to DB!
-Successfully added to DB!
-Searching for Key delete_me to delete...
-Found Key: delete_me!
-Deleting...
-Deletion was successful
-]]></system-out>
-  </testcase>
-  <testcase name="testHelpAndExitCommands" classname="jankdb.REPLCLIManagerTest" time="0.001">
+  <testcase name="testHelpCommandDoesNotThrow" classname="jankdb.REPLCLIManagerTest" time="0.002">
     <system-out><![CDATA[Listing all commands...
-Session terminated.
-Thank you for using JankDB!
-The program will now exit
-]]></system-out>
-    <system-err><![CDATA[GET returns the <Key> value (if found).
+GET returns the <Key> value (if found).
 SET updates the <Key> value to <Value> (if found).
 If not found, adds the <Key>:<Value> Pair to the database
 DEL deletes the associated <Key>:Value pair (if found).
@@ -76,64 +63,63 @@ SAVE saves all current operations to persistent storage.
 CLEAR removes all entries in the database.
 HELP lists all available actions.
 EXIT terminates the current session.
-]]></system-err>
-  </testcase>
-  <testcase name="testUpdateTable" classname="jankdb.REPLCLIManagerTest" time="0.001">
-    <system-out><![CDATA[Could not find <Key> And <Value>: x. Adding to DB!
-Successfully added to DB!
-Found <Key>: x. Value is now: 
-Successfully updated DB!
 ]]></system-out>
   </testcase>
-  <testcase name="testKeysCommandListsKeys" classname="jankdb.REPLCLIManagerTest" time="0.001">
-    <system-out><![CDATA[Could not find <Key> And <Value>: a. Adding to DB!
+  <testcase name="testClearCommandFlushesAll" classname="jankdb.REPLCLIManagerTest" time="0.003">
+    <system-out><![CDATA[Could not find <Key> And <Value>: k1. Adding to DB!
 Successfully added to DB!
-Could not find <Key> And <Value>: b. Adding to DB!
-Successfully added to DB!
-Retrieving all keys...
-key: a
-key: b
-Successfully retrieved all keys!
-]]></system-out>
-  </testcase>
-  <testcase name="testClearCommandWipesEverything" classname="jankdb.REPLCLIManagerTest" time="0.0">
-    <system-out><![CDATA[Could not find <Key> And <Value>: one. Adding to DB!
-Successfully added to DB!
-Could not find <Key> And <Value>: two. Adding to DB!
+Could not find <Key> And <Value>: k2. Adding to DB!
 Successfully added to DB!
 Clearing all Database entries...
 All Database entries cleared successfully!
 Remember to SAVE all changes!
 ]]></system-out>
   </testcase>
-  <testcase name="testAddToTable" classname="jankdb.REPLCLIManagerTest" time="0.0">
-    <system-out><![CDATA[Could not find <Key> And <Value>: foo. Adding to DB!
+  <testcase name="testKeysCommandDoesNotThrow" classname="jankdb.REPLCLIManagerTest" time="0.001">
+    <system-out><![CDATA[Could not find <Key> And <Value>: key1. Adding to DB!
+Successfully added to DB!
+Retrieving all keys...
+key: key1
+Successfully retrieved all keys!
+]]></system-out>
+  </testcase>
+  <testcase name="testSetCommandAddsRecord" classname="jankdb.REPLCLIManagerTest" time="0.001">
+    <system-out><![CDATA[Could not find <Key> And <Value>: testKey. Adding to DB!
 Successfully added to DB!
 ]]></system-out>
   </testcase>
-  <testcase name="testInvalidCommandSize" classname="jankdb.REPLCLIManagerTest" time="0.001">
-    <system-out><![CDATA[SET usage...
-]]></system-out>
-    <system-err><![CDATA[Invalid size of command!
-]]></system-err>
-  </testcase>
-  <testcase name="testGetCommandFindsKey" classname="jankdb.REPLCLIManagerTest" time="0.001">
-    <system-out><![CDATA[Could not find <Key> And <Value>: luna. Adding to DB!
+  <testcase name="testGetCommandFindsRecord" classname="jankdb.REPLCLIManagerTest" time="0.001">
+    <system-out><![CDATA[Could not find <Key> And <Value>: hello. Adding to DB!
 Successfully added to DB!
-Attempting to find <Key>: luna...
-Found <Key>: luna
-luna=cat;
+Attempting to find <Key>: hello...
+Found <Key>: hello
+hello=world;
 ]]></system-out>
   </testcase>
-  <testcase name="testInitDBCreatesTableIfMissing" classname="jankdb.REPLCLIManagerTest" time="0.001">
-    <system-out><![CDATA[Table successfully loaded. Session has started
+  <testcase name="testDelCommandRemovesKey" classname="jankdb.REPLCLIManagerTest" time="0.001">
+    <system-out><![CDATA[Could not find <Key> And <Value>: tempKey. Adding to DB!
+Successfully added to DB!
+Searching for Key tempKey to delete...
+Found Key: tempKey!
+Deleting...
+Deletion was successful
 ]]></system-out>
   </testcase>
-  <testcase name="testSaveAndLoadCycle" classname="jankdb.REPLCLIManagerTest" time="0.001">
-    <system-out><![CDATA[Could not find <Key> And <Value>: persist. Adding to DB!
+  <testcase name="testExitCommandDoesNotThrow" classname="jankdb.REPLCLIManagerTest" time="0.002">
+    <system-out><![CDATA[Session terminated.
+Thank you for using JankDB!
+The program will now exit
+]]></system-out>
+  </testcase>
+  <testcase name="testSaveCommandDoesNotThrow" classname="jankdb.REPLCLIManagerTest" time="0.001">
+    <system-out><![CDATA[Could not find <Key> And <Value>: saveKey. Adding to DB!
 Successfully added to DB!
 Saving all changes to persistent storage...
 All changes successfully saved!
+]]></system-out>
+  </testcase>
+  <testcase name="testUnknownCommandHandledGracefully" classname="jankdb.REPLCLIManagerTest" time="0.001">
+    <system-out><![CDATA[Unknown command: FOOBAR
 ]]></system-out>
   </testcase>
 </testsuite>

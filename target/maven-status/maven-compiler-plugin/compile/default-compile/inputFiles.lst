@@ -1,6 +1,15 @@
+/mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/cli/REPLCommand.java
+/mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/cli/GetCommand.java
 /mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/Record.java
 /mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/JankDB.java
+/mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/cli/SetCommand.java
+/mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/cli/ExitCommand.java
+/mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/cli/ClearCommand.java
+/mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/cli/KeysCommand.java
+/mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/cli/SaveCommand.java
+/mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/REPLCLIManager.java
+/mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/cli/DelCommand.java
+/mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/helpers/CLICommandRegistry.java
+/mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/cli/HelpCommand.java
 /mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/DBFile.java
 /mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/Table.java
-/mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/REPLCLIManager.java
-/mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/helpers/CLICommandRegistry.java

@@ -1,5 +1,8 @@
 package jankdb;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -27,14 +30,15 @@ public class REPLCLIManager {
         commands.put(CLICommandRegistry.BaseCommands.EXIT, new ExitCommand());
     }
 
-    public void Start() {
+    public void StartServerSide() {
         System.out.println(CLICommandRegistry.Messages.GREETING);
-        Run();
+        RunServerSide();
     }
 
-    void Run() {
+    void RunServerSide() {
+        InitDB();
         Scanner scanner = new Scanner(System.in);
-        String command = InputSanitizer.sanitize(GetCommand(scanner));
+        String command = GetCommand(scanner);
         while (IsNotExit(command)) {
             if (!command.equals("")) {
                 ParseCommand(command);
@@ -44,9 +48,32 @@ public class REPLCLIManager {
         scanner.close();
     }
 
+    public void StartClientSide(PrintWriter out, BufferedReader in) throws IOException {
+        out.println(CLICommandRegistry.Messages.GREETING);
+        RunClientSide(out, in);
+    }
+
+    void RunClientSide(PrintWriter out, BufferedReader in) throws IOException {
+        InitDB();
+        String command = GetCommandClientSide(out, in);
+        while (IsNotExit(command)) {
+            if (!command.equals("")) {
+                ParseCommandClientSide(command, out, in);
+            }
+            command = GetCommandClientSide(out, in);
+        }
+    }
+
     String GetCommand(Scanner scanner) {
+        System.out.println(CLICommandRegistry.Messages.REQ_COMMAND);
         System.out.println();
-        return scanner.nextLine();
+        return InputSanitizer.sanitize(scanner.nextLine());
+    }
+
+    String GetCommandClientSide(PrintWriter out, BufferedReader in) throws IOException {
+        out.println(CLICommandRegistry.Messages.REQ_COMMAND);
+        out.println();
+        return InputSanitizer.sanitize(in.readLine());
     }
 
     boolean IsNotExit(String command) {
@@ -63,6 +90,19 @@ public class REPLCLIManager {
             cmd.Execute(split, mainTable);
         } else {
             System.out.println("Unknown command: " + split[0]);
+        }
+    }
+
+    void ParseCommandClientSide(String command, PrintWriter out, BufferedReader in) throws IOException {
+        String[] split = SplitCommand(command);
+        if (split.length == 0)
+            return;
+
+        REPLCommand cmd = commands.get(split[0]);
+        if (cmd != null) {
+            cmd.ExecuteClientSide(split, mainTable, out);
+        } else {
+            out.println("Unknown command: " + split[0]);
         }
     }
 

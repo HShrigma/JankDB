@@ -1,1 +1,1 @@
-saveKey=saveValue;
+new=10;

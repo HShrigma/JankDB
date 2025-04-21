@@ -13,6 +13,7 @@ jankdb/helpers/CLICommandRegistry$Messages.class
 jankdb/cli/SaveCommand.class
 jankdb/REPLCLIManager.class
 jankdb/cli/REPLCommand.class
+jankdb/server/SocketServer.class
 jankdb/JankDB.class
 jankdb/cli/SetCommand.class
 jankdb/cli/DelCommand.class

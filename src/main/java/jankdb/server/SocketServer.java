@@ -2,6 +2,7 @@ package jankdb.server;
 
 import java.io.*;
 import java.net.*;
+import java.util.UUID;
 
 import jankdb.REPLCLIManager;
 
@@ -47,14 +48,15 @@ public class SocketServer {
     }
 
     void StartClient() throws IOException {
-        // Add client
         client = server.accept();
         System.out.println("Client accepted");
-        // Initialise R/W
+
         out = new PrintWriter(client.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
+        String userKey = UUID.randomUUID().toString(); // Generate session key
         REPLCLIManager clientCLI = new REPLCLIManager();
-        clientCLI.StartClientSide(out, in);
+        clientCLI.StartClientSide(out, in, userKey);
     }
+
 }

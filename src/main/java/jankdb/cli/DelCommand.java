@@ -8,33 +8,35 @@ public class DelCommand extends REPLCommand {
 
     @Override
     public void Execute(String[] args, CommandContext ctx) {
-        if (IsValidCommand(2, args, CLICommandRegistry.CommandSizeRules.DEL, ctx)) {
-            // Deletes Key if found
-            String key = args[1];
-            ctx.println(getInitMSG(key));
-
-            // Search for key
-            for (Record record : ctx.table.GetRecords()) {
-                // Safely try deleting if found
-                if (record.GetData().containsKey(key)) {
-
-                    System.out.println(getKeyFoundMSG(key));
-                    try {
-                        ctx.table.DeleteRecord(ctx.table.GetRecords().indexOf(record));
-                        // On successful deletion
-                        System.out.println(CLICommandRegistry.ExecutionMessages.DEL_DELETED_SUCCESS);
-                        return;
-                    } catch (Exception e) {
-                        // On unsuccessful deletion
-                        System.err.println(CLICommandRegistry.ExecutionMessages.DEL_DELETED_FAIL);
-                        return;
+        if (!ctx.table.tryLock(ctx.userKey)) {
+            ctx.println("Table is currently locked by another user.");
+            return;
+        }
+        try {
+            if (IsValidCommand(2, args, CLICommandRegistry.CommandSizeRules.DEL, ctx)) {
+                String key = args[1];
+                ctx.println(getInitMSG(key));
+    
+                for (Record record : ctx.table.GetRecords()) {
+                    if (record.GetData().containsKey(key)) {
+                        ctx.println(getKeyFoundMSG(key));
+                        try {
+                            ctx.table.DeleteRecord(ctx.table.GetRecords().indexOf(record));
+                            ctx.println(CLICommandRegistry.ExecutionMessages.DEL_DELETED_SUCCESS);
+                            return;
+                        } catch (Exception e) {
+                            ctx.println(CLICommandRegistry.ExecutionMessages.DEL_DELETED_FAIL);
+                            return;
+                        }
                     }
                 }
+                ctx.println(getKeyNotFoundMSG(key));
             }
-            // If key isn't found
-            System.out.println(getKeyNotFoundMSG(key));
+        } finally {
+            ctx.table.unlock(ctx.userKey);
         }
     }
+    
 
     String getInitMSG(String key) {
         return CLICommandRegistry.ExecutionMessages.DEL_BEGIN_PREFIX

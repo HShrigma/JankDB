@@ -28,6 +28,7 @@ public final class CLICommandRegistry {
         public static final String TABLE_FOUND = "Table successfully loaded. Session has started";
         public static final String UNRECOGNIZED_COMMAND_ERR = "Command not recognized! Use \"HELP\" to see all valid commands.";
         public static final String TABLE_NULL_ERR = "Error: No table is sellected!\n Use \"TABLES\" to see available tables \nand \"SELECT\" to choose/create a table.";
+        public static final String TABLE_LOCKED_ERR = "[lock] Table is locked by another session.";
     }
 
     public static final class CommandSizeRules {

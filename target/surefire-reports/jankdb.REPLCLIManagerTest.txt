@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: jankdb.REPLCLIManagerTest
 -------------------------------------------------------------------------------
-Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.028 s -- in jankdb.REPLCLIManagerTest
+Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.021 s -- in jankdb.REPLCLIManagerTest

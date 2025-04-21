@@ -106,7 +106,6 @@ public class REPLCLIManagerTest {
         Table myTable = repl.getTables().get("myTable");
         assertNotNull(myTable, "New table 'myTable' should have been created");
 
-        // Simulate SET foo bar on current table context
         CommandContext ctx = new CommandContext(true, out, myTable, repl.getCommands(), repl.getTables());
         REPLCommand setCmd = repl.getCommands().get("SET");
         setCmd.Execute(new String[] { "SET", "foo", "bar" }, ctx);
@@ -117,20 +116,41 @@ public class REPLCLIManagerTest {
 
     @Test
     public void testTablesCommandListsTables() {
-        // Use the REPL helper that ensures proper context
         executeCmd("SELECT newT");
         repl.getTables().get("newT").Save();
 
-        // Now run TABLES command and check output
         outputStream.reset();
         REPLCommand tablesCmd = repl.getCommands().get("TABLES");
-        CommandContext tablesCtx = new CommandContext(true, out, repl.getMainTable(), repl.getCommands(),
-                repl.getTables());
+        CommandContext tablesCtx = new CommandContext(true, out, repl.getMainTable(), repl.getCommands(), repl.getTables());
         tablesCmd.Execute(new String[] { "TABLES" }, tablesCtx);
         String result = outputStream.toString();
 
         assertTrue(result.contains("main"), "Should contain default 'main' table");
         assertTrue(result.contains("newT"), "Should contain newly created 'newT' table");
+    }
+
+    // New Tests for Locking Mechanism
+
+    @Test
+    public void testSetCommandBlockedByLock() {
+        executeCmd("SET lockedKey lockedValue");  // Session 1
+        outputStream.reset();
+        executeCmd("SET testKey testValue"); // Session 2
+
+        String result = outputStream.toString();
+        assertTrue(result.contains("Table is currently locked by another user"), "SET command should be blocked by lock.");
+    }
+
+    @Test
+    public void testSetCommandExecutesAfterLockRelease() {
+        executeCmd("SET lockedKey lockedValue");  // Session 1
+        outputStream.reset();
+        executeCmd("SET testKey testValue"); // Session 2
+        
+        String result = outputStream.toString();
+        assertTrue(result.contains("SET"), "SET command should execute after lock release.");
+        List<Record> records = repl.getMainTable().GetRecords();
+        assertEquals(2, records.size(), "There should be two records in the table.");
     }
 
     @AfterEach

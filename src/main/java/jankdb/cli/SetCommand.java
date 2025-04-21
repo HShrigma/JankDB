@@ -6,21 +6,25 @@ import jankdb.Record;
 import jankdb.helpers.*;
 
 public class SetCommand extends REPLCommand {
-
     @Override
     public void Execute(String[] args, CommandContext ctx) {
-        if (IsValidCommand(3, args, CLICommandRegistry.CommandSizeRules.SET,ctx)) {
-            // Sets Key to Value if found
-            String key = args[1];
-            String value = args[2];
-            List<Record> found = ctx.table.FindByKey(key);
-            if (found.isEmpty()) {
-                // Add new value to table if key not found
-                AddToTableDebug(key, value, ctx);
-            } else {
-                // Update existing table entry if key found
-                UpdateTableDebug(found, key, value, ctx);
+        if (!ctx.table.tryLock(ctx.userKey)) {
+            ctx.println("Table is currently locked by another user.");
+            return;
+        }
+        try {
+            if (IsValidCommand(3, args, CLICommandRegistry.CommandSizeRules.SET, ctx)) {
+                String key = args[1];
+                String value = args[2];
+                List<Record> found = ctx.table.FindByKey(key);
+                if (found.isEmpty()) {
+                    AddToTableDebug(key, value, ctx);
+                } else {
+                    UpdateTableDebug(found, key, value, ctx);
+                }
             }
+        } finally {
+            ctx.table.unlock(ctx.userKey);
         }
     }
 
@@ -46,9 +50,9 @@ public class SetCommand extends REPLCommand {
                     ctx.println(getAddInitMSG(key));
 
                     int index = ctx.table.GetRecords().indexOf(record);
-                    record.AddKvP(key, value);                    
+                    record.AddKvP(key, value);
                     ctx.table.UpdateRecord(index, record);
-                    
+
                     ctx.println(CLICommandRegistry.ExecutionMessages.SET_UPDATE_SUCCESS);
                 }
             }
@@ -61,10 +65,12 @@ public class SetCommand extends REPLCommand {
         return CLICommandRegistry.ExecutionMessages.SET_ADD_PREFIX + key
                 + CLICommandRegistry.ExecutionMessages.SET_ADD_SUFFIX;
     }
-    String getUpdateInitMSG(String key){
+
+    String getUpdateInitMSG(String key) {
         return CLICommandRegistry.ExecutionMessages.SET_UPDATE_PREFIX + key
-        + CLICommandRegistry.ExecutionMessages.SET_UPDATE_SUFFIX;
+                + CLICommandRegistry.ExecutionMessages.SET_UPDATE_SUFFIX;
     }
+
     @Override
     public String Help() {
         return CLICommandRegistry.CommandGuides.SET;

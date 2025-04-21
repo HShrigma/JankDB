@@ -12,7 +12,17 @@ public class CommandContext {
     public Table table;
     public final Map<String, REPLCommand> commands;
     public final Map<String, Table> tables;
+    public String userKey;
 
+    public CommandContext(boolean isClient, PrintWriter clientOut, Table table, Map<String, REPLCommand> commands,
+            Map<String, Table> tables, String userKey) {
+        this.isClient = isClient;
+        this.clientOut = clientOut;
+        this.table = table;
+        this.commands = commands;
+        this.tables = tables;
+        this.userKey = userKey;
+    }
     public CommandContext(boolean isClient, PrintWriter clientOut, Table table, Map<String, REPLCommand> commands,
             Map<String, Table> tables) {
         this.isClient = isClient;
@@ -20,6 +30,7 @@ public class CommandContext {
         this.table = table;
         this.commands = commands;
         this.tables = tables;
+        this.userKey = null;
     }
 
     public void println(String message) {

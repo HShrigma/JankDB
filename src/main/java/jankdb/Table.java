@@ -10,6 +10,7 @@ public class Table {
     List<Record> records;
     DBFile dbFile;
     final String path = "store/";
+    private String lockOwner = null;
 
     // Constructors ----------------------------------------
     public Table(String label) {
@@ -96,5 +97,29 @@ public class Table {
         records = new ArrayList<Record>();
     }
     // END DBFile methods ----------------------------------------
-
+    
+    // Table Locking ----------------------------------------------
+    public synchronized boolean tryLock(String userKey) {
+        if (lockOwner == null || lockOwner.equals(userKey)) {
+            lockOwner = userKey;
+            return true;
+        }
+        return false;
+    }
+    
+    public synchronized void unlock(String userKey) {
+        if (lockOwner != null && lockOwner.equals(userKey)) {
+            lockOwner = null;
+        }
+    }
+    
+    public synchronized boolean isLockedByOther(String userKey) {
+        return lockOwner != null && !lockOwner.equals(userKey);
+    }
+    
+    public synchronized String getLockOwner() {
+        return lockOwner;
+    }
+    
+    // END Table Locking ----------------------------------------------
 }

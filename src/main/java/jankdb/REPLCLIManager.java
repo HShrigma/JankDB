@@ -115,7 +115,7 @@ public class REPLCLIManager {
             }
 
             // Provide context with selected table
-            CommandContext ctx = new CommandContext(isClient, out, currentTable, commands, tables);
+            CommandContext ctx = new CommandContext(isClient, out, currentTable, commands, tables, clientKey);
             cmd.Execute(split, ctx);
 
             if (!isClient) {

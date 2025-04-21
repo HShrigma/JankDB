@@ -15,16 +15,27 @@ public abstract class REPLCommand {
     }
 
     protected boolean IsValidCommand(int expectedSize, String[] arr, String formatMSG, CommandContext ctx) {
-        if (arr.length == expectedSize && ctx.table != null)
-            return true;
-
-        if (ctx.table == null)
+        // Check if table is null
+        if (ctx.table == null) {
             ctx.println(CLICommandRegistry.Messages.TABLE_NULL_ERR);
-
+            return false;
+        }
+    
+        // Check command format
         if (arr.length != expectedSize) {
             ctx.println(CLICommandRegistry.Messages.INVALID_SIZE_ERR);
             ctx.println(formatMSG);
+            return false;
         }
-        return false;
+    
+        // Check table lock ownership
+        if (ctx.table.isLockedByOther(ctx.userKey)) {
+            ctx.println(CLICommandRegistry.Messages.TABLE_LOCKED_ERR);
+            return false;
+        }
+    
+        // All checks passed
+        return true;
     }
+    
 }

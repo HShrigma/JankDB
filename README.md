@@ -65,7 +65,7 @@ JankDB implements a sophisticated locking system:
 - Timeout support for deadlock prevention *(kinda)*
 
 - Ownership tracking with user sessions
-- 
+
 ## License 📄
 
 The Unlicense. Go crazy.

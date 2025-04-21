@@ -8,32 +8,28 @@ public class DelCommand extends REPLCommand {
 
     @Override
     public void Execute(String[] args, CommandContext ctx) {
-        if (!ctx.table.tryLock(ctx.userKey)) {
-            ctx.println("Table is currently locked by another user.");
-            return;
-        }
         try {
             if (IsValidCommand(2, args, CLICommandRegistry.CommandSizeRules.DEL, ctx)) {
                 String key = args[1];
                 ctx.println(getInitMSG(key));
-    
+                
+                boolean deleted = false;
                 for (Record record : ctx.table.GetRecords()) {
                     if (record.GetData().containsKey(key)) {
                         ctx.println(getKeyFoundMSG(key));
-                        try {
-                            ctx.table.DeleteRecord(ctx.table.GetRecords().indexOf(record));
-                            ctx.println(CLICommandRegistry.ExecutionMessages.DEL_DELETED_SUCCESS);
-                            return;
-                        } catch (Exception e) {
-                            ctx.println(CLICommandRegistry.ExecutionMessages.DEL_DELETED_FAIL);
-                            return;
-                        }
+                        ctx.table.DeleteRecord(ctx.table.GetRecords().indexOf(record));
+                        ctx.println(CLICommandRegistry.ExecutionMessages.DEL_DELETED_SUCCESS);
+                        deleted = true;
+                        break;
                     }
                 }
-                ctx.println(getKeyNotFoundMSG(key));
+                
+                if (!deleted) {
+                    ctx.println(getKeyNotFoundMSG(key));
+                }
             }
-        } finally {
-            ctx.table.unlock(ctx.userKey);
+        } catch (Exception e) {
+            ctx.println(CLICommandRegistry.ExecutionMessages.DEL_DELETED_FAIL);
         }
     }
     
@@ -58,5 +54,9 @@ public class DelCommand extends REPLCommand {
     @Override
     public String Help() {
         return CLICommandRegistry.CommandGuides.DEL;
+    }
+    @Override
+    protected boolean requiresWriteLock(){
+        return true;
     }
 }

@@ -7,22 +7,14 @@ public class ClearCommand extends REPLCommand {
 
     @Override
     public void Execute(String[] args, CommandContext ctx) {
-        if (!ctx.table.tryLock(ctx.userKey)) {
-            ctx.println("Table is currently locked by another user.");
-            return;
-        }
         try {
             if (IsValidCommand(1, args, CLICommandRegistry.CommandSizeRules.CLEAR, ctx)) {
                 ctx.println(CLICommandRegistry.ExecutionMessages.CLEAR_BEGIN);
-                try {
-                    ctx.table.Flush();
-                    ctx.println(CLICommandRegistry.ExecutionMessages.CLEAR_SUCCESS);
-                } catch (Exception e) {
-                    ctx.println("ERROR: " + CLICommandRegistry.ExecutionMessages.CLEAR_FAIL);
-                }
+                ctx.table.Flush();
+                ctx.println(CLICommandRegistry.ExecutionMessages.CLEAR_SUCCESS);
             }
-        } finally {
-            ctx.table.unlock(ctx.userKey);
+        } catch (Exception e) {
+            ctx.println("ERROR: " + CLICommandRegistry.ExecutionMessages.CLEAR_FAIL);
         }
     }
     
@@ -30,5 +22,10 @@ public class ClearCommand extends REPLCommand {
     @Override
     public String Help() {
         return CLICommandRegistry.CommandGuides.CLEAR;
+    }
+
+    @Override
+    protected boolean requiresWriteLock(){
+        return true;
     }
 }

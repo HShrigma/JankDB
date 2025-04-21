@@ -20,22 +20,35 @@ public abstract class REPLCommand {
             ctx.println(CLICommandRegistry.Messages.TABLE_NULL_ERR);
             return false;
         }
-    
+
         // Check command format
         if (arr.length != expectedSize) {
             ctx.println(CLICommandRegistry.Messages.INVALID_SIZE_ERR);
             ctx.println(formatMSG);
             return false;
         }
-    
-        // Check table lock ownership
-        if (ctx.table.isLockedByOther(ctx.userKey)) {
-            ctx.println(CLICommandRegistry.Messages.TABLE_LOCKED_ERR);
-            return false;
+
+        if (requiresWriteLock()) {
+            synchronized (ctx.table) {
+                if (ctx.table.isLockedByOther(ctx.userKey)) {
+                    ctx.println("Table is currently locked by: " + ctx.table.getLockOwner());
+                    return false;
+                }
+                // Only try to lock if we don't already own it
+                if (ctx.table.getLockOwner() == null || !ctx.table.getLockOwner().equals(ctx.userKey)) {
+                    if (!ctx.table.tryLock(ctx.userKey)) {
+                        ctx.println("Failed to acquire lock on table");
+                        return false;
+                    }
+                }
+            }
         }
-    
-        // All checks passed
         return true;
     }
-    
+
+    // Override this in commands that modify data
+    protected boolean requiresWriteLock() {
+        return false;
+    }
+
 }

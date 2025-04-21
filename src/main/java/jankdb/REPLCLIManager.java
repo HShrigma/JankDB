@@ -1,44 +1,34 @@
 package jankdb;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
-
+import java.io.*;
+import java.util.*;
 import jankdb.cli.*;
 import jankdb.helpers.*;
 
 public class REPLCLIManager {
-
-    private final Table mainTable;
+    private final TableRepository tableRepo;
     private final Map<String, REPLCommand> commands;
-    private final Map<String, Table> tables;
-
-    // Track selected table name
     private Table currentTable;
 
-    public REPLCLIManager() {
-        mainTable = new Table("main");
-        currentTable = mainTable;
+    public REPLCLIManager(TableRepository tableRepo) {
+        this.tableRepo = tableRepo;
+        this.currentTable = tableRepo.getOrCreateTable("main");
+        this.commands = registerCommands();
+    }
 
-        commands = new HashMap<>();
-        tables = new HashMap<>();
-
-        tables.put("main", mainTable); // register main table
-
-        // Register commands
-        commands.put(CLICommandRegistry.BaseCommands.GET, new GetCommand());
-        commands.put(CLICommandRegistry.BaseCommands.SET, new SetCommand());
-        commands.put(CLICommandRegistry.BaseCommands.DEL, new DelCommand());
-        commands.put(CLICommandRegistry.BaseCommands.KEYS, new KeysCommand());
-        commands.put(CLICommandRegistry.BaseCommands.SAVE, new SaveCommand());
-        commands.put(CLICommandRegistry.BaseCommands.CLEAR, new ClearCommand());
-        commands.put(CLICommandRegistry.BaseCommands.HELP, new HelpCommand());
-        commands.put(CLICommandRegistry.BaseCommands.EXIT, new ExitCommand());
-        commands.put(CLICommandRegistry.BaseCommands.SELECT, new SelectCommand());
-        commands.put(CLICommandRegistry.BaseCommands.TABLES, new TablesCommand());
+    private Map<String, REPLCommand> registerCommands() {
+        Map<String, REPLCommand> cmds = new HashMap<>();
+        cmds.put(CLICommandRegistry.BaseCommands.GET, new GetCommand());
+        cmds.put(CLICommandRegistry.BaseCommands.SET, new SetCommand());
+        cmds.put(CLICommandRegistry.BaseCommands.DEL, new DelCommand());
+        cmds.put(CLICommandRegistry.BaseCommands.KEYS, new KeysCommand());
+        cmds.put(CLICommandRegistry.BaseCommands.SAVE, new SaveCommand());
+        cmds.put(CLICommandRegistry.BaseCommands.CLEAR, new ClearCommand());
+        cmds.put(CLICommandRegistry.BaseCommands.HELP, new HelpCommand());
+        cmds.put(CLICommandRegistry.BaseCommands.EXIT, new ExitCommand());
+        cmds.put(CLICommandRegistry.BaseCommands.SELECT, new SelectCommand());
+        cmds.put(CLICommandRegistry.BaseCommands.TABLES, new TablesCommand());
+        return cmds;
     }
 
     public void StartServerSide() {
@@ -99,23 +89,31 @@ public class REPLCLIManager {
 
     private void executeCommand(String command, boolean isClient, PrintWriter out, String clientKey) {
         String[] split = SplitCommand(command);
-        if (split.length == 0)
-            return;
+        if (split.length == 0) return;
 
         String cmdName = split[0].toUpperCase();
         REPLCommand cmd = commands.get(cmdName);
 
         if (cmd != null) {
-            // SELECT gets special treatment to change the currentTable
+            CommandContext ctx = new CommandContext(
+                isClient, out, currentTable, commands, tableRepo, clientKey);
+
             if (cmdName.equals(CLICommandRegistry.BaseCommands.SELECT)) {
                 if (split.length == 2) {
-                    String tableName = split[1];
-                    currentTable = tables.computeIfAbsent(tableName, Table::new);
+                    Table newTable = tableRepo.getOrCreateTable(split[1]);
+                    if (!newTable.tryLock(clientKey)) {
+                        out.println("Table locked by: " + newTable.getLockOwner());
+                        return;
+                    }
+                    if (currentTable.getLockOwner() != null && 
+                        currentTable.getLockOwner().equals(clientKey)) {
+                        currentTable.unlock(clientKey);
+                    }
+                    currentTable = newTable;
+                    ctx.table = currentTable;
                 }
             }
 
-            // Provide context with selected table
-            CommandContext ctx = new CommandContext(isClient, out, currentTable, commands, tables, clientKey);
             cmd.Execute(split, ctx);
 
             if (!isClient) {
@@ -123,7 +121,6 @@ public class REPLCLIManager {
             } else if (clientKey != null) {
                 System.out.println("[server log] Client " + clientKey + " executed: " + command);
             }
-
         } else {
             if (isClient) {
                 out.println("Unknown command: " + split[0]);
@@ -133,16 +130,12 @@ public class REPLCLIManager {
         }
     }
 
-    public Map<String, REPLCommand> getCommands() {
-        return commands;
-    }
-
     private void InitDB() {
         try {
-            mainTable.Load();
+            currentTable.Load();
         } catch (Exception e) {
             System.out.println(CLICommandRegistry.Messages.TABLE_NOT_FOUND);
-            mainTable.Save();
+            currentTable.Save();
         } finally {
             System.out.println(CLICommandRegistry.Messages.TABLE_FOUND);
         }
@@ -152,12 +145,7 @@ public class REPLCLIManager {
         return command.trim().split("\\s+");
     }
 
-    public Map<String, Table> getTables() {
-        return tables;
+    public Map<String, REPLCommand> getCommands() {
+        return commands;
     }
-
-    public Table getMainTable() {
-        return mainTable;
-    }
-
 }

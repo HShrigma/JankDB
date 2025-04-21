@@ -10,7 +10,8 @@ public class Table {
     List<Record> records;
     DBFile dbFile;
     final String path = "store/";
-    private String lockOwner = null;
+    String lockOwner = null;
+    private final Object lock = new Object();
 
     // Constructors ----------------------------------------
     public Table(String label) {
@@ -50,16 +51,18 @@ public class Table {
         }
         return res;
     }
+
     public List<Record> FindByKey(String key) {
 
         List<Record> res = new ArrayList<Record>();
         for (Record record : records) {
             if (record.GetData().keySet().contains(key)) {
-                    res.add(record);
+                res.add(record);
             }
         }
         return res;
     }
+
     public void UpdateRecord(int index, Record newData) {
         if (index > -1 && index < records.size()) {
             records.set(index, newData);
@@ -93,11 +96,12 @@ public class Table {
             System.err.println("Table:Load: Error occured when getting data");
         }
     }
-    public void Flush(){
+
+    public void Flush() {
         records = new ArrayList<Record>();
     }
     // END DBFile methods ----------------------------------------
-    
+
     // Table Locking ----------------------------------------------
     public synchronized boolean tryLock(String userKey) {
         if (lockOwner == null || lockOwner.equals(userKey)) {
@@ -120,6 +124,5 @@ public class Table {
     public synchronized String getLockOwner() {
         return lockOwner;
     }
-    
     // END Table Locking ----------------------------------------------
 }

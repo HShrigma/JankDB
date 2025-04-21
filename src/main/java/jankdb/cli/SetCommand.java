@@ -11,20 +11,23 @@ public class SetCommand extends REPLCommand {
             if (!IsValidCommand(3, args, CLICommandRegistry.CommandSizeRules.SET, ctx)) {
                 return;
             }
-    
-            String key = args[1];
-            String value = args[2];
-            List<Record> found = ctx.table.FindByKey(key);
-    
+            
             try {
+                String key = args[1];
+                String value = args[2];
+                List<Record> found = ctx.table.FindByKey(key);
+    
                 if (found.isEmpty()) {
                     addToTable(key, value, ctx);
                 } else {
-                   updateTable(found, key, value, ctx);
+                    updateTable(found, key, value, ctx);
                 }
             } finally {
-                // DON'T unlock here - let the next command handle it
-                // Lock is maintained until another command needs it
+                // Only unlock if we acquired the lock
+                if (requiresWriteLock() && ctx.table.getLockOwner() != null 
+                    && ctx.table.getLockOwner().equals(ctx.userKey)) {
+                    ctx.table.unlock(ctx.userKey);
+                }
             }
         } catch (Exception e) {
             ctx.println("ERROR: Failed to execute SET command");

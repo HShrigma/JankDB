@@ -10,7 +10,8 @@ import org.junit.platform.suite.api.Suite;
         RecordTest.class,
         TableTest.class,
         REPLCLIManagerTest.class,
-        InputSanitizerTest.class
+        InputSanitizerTest.class,
+        TableConcurrencyTest.class
 })
 
 public class JankDBTestSuite {

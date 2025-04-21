@@ -7,9 +7,12 @@ public class SaveCommand extends REPLCommand {
     public void Execute(String[] args, CommandContext ctx) {
         try {
             if (IsValidCommand(1, args, CLICommandRegistry.CommandSizeRules.SAVE, ctx)) {
-                ctx.println(CLICommandRegistry.ExecutionMessages.SAVE_BEGIN);
-                ctx.table.Save();
-                ctx.println(CLICommandRegistry.ExecutionMessages.SAVE_SUCCESS);
+                ctx.table.writeWithLock(ctx.userKey, table -> {
+                    ctx.println(CLICommandRegistry.ExecutionMessages.SAVE_BEGIN);
+                    table.Save();
+                    ctx.println(CLICommandRegistry.ExecutionMessages.SAVE_SUCCESS);
+                    return null;
+                });
             }
         } catch (Exception e) {
             ctx.println(CLICommandRegistry.ExecutionMessages.SAVE_FAIL);

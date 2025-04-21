@@ -15,29 +15,37 @@ public abstract class REPLCommand {
     }
 
     protected boolean IsValidCommand(int expectedSize, String[] arr, String formatMSG, CommandContext ctx) {
-        // Check if table is null
+        System.out.println("\n[DEBUG] Validating command: " + String.join(" ", arr));
+        System.out.println("[DEBUG] Current lock owner: " + 
+                          (ctx.table.getLockOwner() != null ? ctx.table.getLockOwner() : "none"));
+        System.out.println("[DEBUG] Current user: " + ctx.userKey);
+        
         if (ctx.table == null) {
             ctx.println(CLICommandRegistry.Messages.TABLE_NULL_ERR);
             return false;
         }
-
-        // Check command format
+        
         if (arr.length != expectedSize) {
             ctx.println(CLICommandRegistry.Messages.INVALID_SIZE_ERR);
             ctx.println(formatMSG);
             return false;
         }
-
+    
         if (requiresWriteLock()) {
             synchronized (ctx.table) {
+                // First check if locked by someone else
                 if (ctx.table.isLockedByOther(ctx.userKey)) {
-                    ctx.println("Table is currently locked by: " + ctx.table.getLockOwner());
+                    String msg = "Table locked by: " + ctx.table.getLockOwner();
+                    ctx.println(msg);
                     return false;
                 }
-                // Only try to lock if we don't already own it
-                if (ctx.table.getLockOwner() == null || !ctx.table.getLockOwner().equals(ctx.userKey)) {
+                
+                // If we get here, either:
+                // 1. Table is unlocked, or
+                // 2. We already own the lock
+                if (ctx.table.getLockOwner() == null) {
                     if (!ctx.table.tryLock(ctx.userKey)) {
-                        ctx.println("Failed to acquire lock on table");
+                        ctx.println("Could not acquire table lock");
                         return false;
                     }
                 }
@@ -45,7 +53,6 @@ public abstract class REPLCommand {
         }
         return true;
     }
-
     // Override this in commands that modify data
     protected boolean requiresWriteLock() {
         return false;

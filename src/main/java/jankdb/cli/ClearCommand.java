@@ -9,15 +9,17 @@ public class ClearCommand extends REPLCommand {
     public void Execute(String[] args, CommandContext ctx) {
         try {
             if (IsValidCommand(1, args, CLICommandRegistry.CommandSizeRules.CLEAR, ctx)) {
-                ctx.println(CLICommandRegistry.ExecutionMessages.CLEAR_BEGIN);
-                ctx.table.Flush();
-                ctx.println(CLICommandRegistry.ExecutionMessages.CLEAR_SUCCESS);
+                ctx.table.writeWithLock(ctx.userKey, table -> {
+                    ctx.println(CLICommandRegistry.ExecutionMessages.CLEAR_BEGIN);
+                    table.Flush();
+                    ctx.println(CLICommandRegistry.ExecutionMessages.CLEAR_SUCCESS);
+                    return null;
+                });
             }
         } catch (Exception e) {
             ctx.println("ERROR: " + CLICommandRegistry.ExecutionMessages.CLEAR_FAIL);
         }
     }
-    
 
     @Override
     public String Help() {
@@ -25,7 +27,7 @@ public class ClearCommand extends REPLCommand {
     }
 
     @Override
-    protected boolean requiresWriteLock(){
+    protected boolean requiresWriteLock() {
         return true;
     }
 }

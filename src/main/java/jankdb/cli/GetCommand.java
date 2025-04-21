@@ -1,25 +1,34 @@
 package jankdb.cli;
 
-import jankdb.Table;
+import java.util.List;
+
 import jankdb.helpers.CLICommandRegistry;
 import jankdb.helpers.CommandContext;
 
 public class GetCommand extends REPLCommand {
-
     @Override
     public void Execute(String[] args, CommandContext ctx) {
         if (IsValidCommand(2, args, CLICommandRegistry.CommandSizeRules.GET, ctx)) {
-            // Prints value of key if found
             String key = args[1];
             ctx.println(getInitMSG(key));
-            // If NOT found
-            if (ctx.table.FindByKey(key).isEmpty()) {
-                ctx.println(getKeyNotFoundMSG(key));
-            } else { 
-                // If found
-                ctx.println(getKeyFoundMSG(key, ctx.table));
-            }
+
+            ctx.table.readWithLock(table -> {
+                List<jankdb.Record> found = table.FindByKey(key);
+                if (found.isEmpty()) {
+                    ctx.println(getKeyNotFoundMSG(key));
+                } else {
+                    ctx.println(getKeyFoundMSG(key, found));
+                }
+                return null;
+            });
         }
+    }
+
+    String getKeyFoundMSG(String key, List<jankdb.Record> foundRecords) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(CLICommandRegistry.ExecutionMessages.GET_FOUND + key).append('\n');
+        foundRecords.forEach(r -> sb.append(r.toString()).append('\n'));
+        return sb.toString();
     }
 
     String getInitMSG(String key) {
@@ -32,19 +41,9 @@ public class GetCommand extends REPLCommand {
                 + CLICommandRegistry.ExecutionMessages.GENERIC_NOT_FOUND_SUFFIX;
     }
 
-    String getKeyFoundMSG(String key, Table table){
-        StringBuilder stringBuilder = new StringBuilder();
-        
-        stringBuilder.append(CLICommandRegistry.ExecutionMessages.GET_FOUND + key).append('\n');
-
-        table.FindByKey(key).forEach(match -> {
-            stringBuilder.append(match.toString()).append('\n');
-        });
-        return stringBuilder.toString();
-    }
     @Override
     public String Help() {
         return CLICommandRegistry.CommandGuides.GET;
     }
-    
+
 }

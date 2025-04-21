@@ -4,3 +4,4 @@
 /mnt/Storage/VSCode/JavaProjects/JankDB/src/test/java/jankdb/RecordTest.java
 /mnt/Storage/VSCode/JavaProjects/JankDB/src/test/java/jankdb/InputSanitizerTest.java
 /mnt/Storage/VSCode/JavaProjects/JankDB/src/test/java/jankdb/DBFileTest.java
+/mnt/Storage/VSCode/JavaProjects/JankDB/src/test/java/jankdb/TableConcurrencyTest.java

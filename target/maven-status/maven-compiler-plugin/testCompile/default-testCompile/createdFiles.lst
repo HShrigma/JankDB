@@ -1,6 +1,7 @@
-jankdb/TableTest.class
+jankdb/TableConcurrencyTest.class
 jankdb/JankDBTestSuite.class
 jankdb/DBFileTest.class
-jankdb/RecordTest.class
 jankdb/InputSanitizerTest.class
 jankdb/REPLCLIManagerTest.class
+jankdb/TableTest.class
+jankdb/RecordTest.class

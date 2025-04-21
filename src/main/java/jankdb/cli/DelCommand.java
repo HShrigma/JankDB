@@ -2,22 +2,30 @@ package jankdb.cli;
 
 import jankdb.helpers.*;
 
+import java.util.List;
+
 import jankdb.Record;
 
 public class DelCommand extends REPLCommand {
 
-    @Override
+ @Override
     public void Execute(String[] args, CommandContext ctx) {
         try {
-            if (IsValidCommand(2, args, CLICommandRegistry.CommandSizeRules.DEL, ctx)) {
-                String key = args[1];
-                ctx.println(getInitMSG(key));
-                
+            if (!IsValidCommand(2, args, CLICommandRegistry.CommandSizeRules.DEL, ctx)) {
+                return;
+            }
+            
+            String key = args[1];
+            ctx.println(getInitMSG(key));
+            
+            ctx.table.writeWithLock(ctx.userKey, table -> {
                 boolean deleted = false;
-                for (Record record : ctx.table.GetRecords()) {
-                    if (record.GetData().containsKey(key)) {
+                List<Record> records = table.GetRecords();
+                
+                for (int i = 0; i < records.size(); i++) {
+                    if (records.get(i).GetData().containsKey(key)) {
                         ctx.println(getKeyFoundMSG(key));
-                        ctx.table.DeleteRecord(ctx.table.GetRecords().indexOf(record));
+                        table.DeleteRecord(i);
                         ctx.println(CLICommandRegistry.ExecutionMessages.DEL_DELETED_SUCCESS);
                         deleted = true;
                         break;
@@ -27,7 +35,8 @@ public class DelCommand extends REPLCommand {
                 if (!deleted) {
                     ctx.println(getKeyNotFoundMSG(key));
                 }
-            }
+                return null;
+            });
         } catch (Exception e) {
             ctx.println(CLICommandRegistry.ExecutionMessages.DEL_DELETED_FAIL);
         }

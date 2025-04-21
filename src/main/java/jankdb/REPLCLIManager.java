@@ -34,16 +34,18 @@ public class REPLCLIManager {
 
     void Run() {
         Scanner scanner = new Scanner(System.in);
-        String command = GetCommand(scanner);
+        String command = InputSanitizer.sanitize(GetCommand(scanner));
         while (IsNotExit(command)) {
-            ParseCommand(command);
+            if (!command.equals("")) {
+                ParseCommand(command);
+            }
             command = GetCommand(scanner);
         }
         scanner.close();
     }
 
     String GetCommand(Scanner scanner) {
-        System.err.println();
+        System.out.println();
         return scanner.nextLine();
     }
 
@@ -53,7 +55,8 @@ public class REPLCLIManager {
 
     void ParseCommand(String command) {
         String[] split = SplitCommand(command);
-        if (split.length == 0) return;
+        if (split.length == 0)
+            return;
 
         REPLCommand cmd = commands.get(split[0]);
         if (cmd != null) {

@@ -18,3 +18,4 @@ jankdb/cli/SetCommand.class
 jankdb/cli/DelCommand.class
 jankdb/cli/GetCommand.class
 jankdb/Record.class
+jankdb/helpers/InputSanitizer.class

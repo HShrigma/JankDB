@@ -2,4 +2,5 @@ jankdb/TableTest.class
 jankdb/JankDBTestSuite.class
 jankdb/DBFileTest.class
 jankdb/RecordTest.class
+jankdb/InputSanitizerTest.class
 jankdb/REPLCLIManagerTest.class

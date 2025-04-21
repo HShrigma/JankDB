@@ -10,6 +10,7 @@
 /mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/REPLCLIManager.java
 /mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/cli/DelCommand.java
 /mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/helpers/CLICommandRegistry.java
+/mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/helpers/InputSanitizer.java
 /mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/cli/HelpCommand.java
 /mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/DBFile.java
 /mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/Table.java

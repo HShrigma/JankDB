@@ -4,18 +4,17 @@ import java.util.List;
 import java.util.Map;
 
 import jankdb.Record;
-import jankdb.Table;
 import jankdb.helpers.*;
 
 public class KeysCommand extends REPLCommand {
 
     @Override
-    public void Execute(String[] args, Table mainTable, CommandContext ctx) {
-        if (IsValidCommandSize(1, args, CLICommandRegistry.CommandSizeRules.KEYS)) {
+    public void Execute(String[] args, CommandContext ctx) {
+        if (IsValidCommand(1, args, CLICommandRegistry.CommandSizeRules.KEYS, ctx)) {
             // Lists all Keys
             ctx.println(CLICommandRegistry.ExecutionMessages.KEYS_BEGIN);
             // Get keys
-            List<Record> records = mainTable.GetRecords();
+            List<Record> records = ctx.table.GetRecords();
             boolean found = false;
             // Print each key
             if (!records.isEmpty()) {

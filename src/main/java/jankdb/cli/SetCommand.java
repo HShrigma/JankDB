@@ -2,34 +2,33 @@ package jankdb.cli;
 
 import java.util.List;
 
-import jankdb.Table;
 import jankdb.Record;
 import jankdb.helpers.*;
 
 public class SetCommand extends REPLCommand {
 
     @Override
-    public void Execute(String[] args, Table mainTable, CommandContext ctx) {
-        if (IsValidCommandSize(3, args, CLICommandRegistry.CommandSizeRules.SET)) {
+    public void Execute(String[] args, CommandContext ctx) {
+        if (IsValidCommand(3, args, CLICommandRegistry.CommandSizeRules.SET,ctx)) {
             // Sets Key to Value if found
             String key = args[1];
             String value = args[2];
-            List<Record> found = mainTable.FindByKey(key);
+            List<Record> found = ctx.table.FindByKey(key);
             if (found.isEmpty()) {
                 // Add new value to table if key not found
-                AddToTableDebug(key, value, mainTable, ctx);
+                AddToTableDebug(key, value, ctx);
             } else {
                 // Update existing table entry if key found
-                UpdateTableDebug(found, key, value, mainTable, ctx);
+                UpdateTableDebug(found, key, value, ctx);
             }
         }
     }
 
-    void AddToTableDebug(String key, String value, Table mainTable, CommandContext ctx) {
+    void AddToTableDebug(String key, String value, CommandContext ctx) {
         ctx.println(getAddInitMSG(key));
         try {
             // Add new record as serialized string
-            mainTable.AddRecord(new Record(key + "=" + value + ";"));
+            ctx.table.AddRecord(new Record(key + "=" + value + ";"));
 
             // On successful add
             ctx.println(CLICommandRegistry.ExecutionMessages.SET_ADD_SUCCESS);
@@ -40,15 +39,15 @@ public class SetCommand extends REPLCommand {
         }
     }
 
-    void UpdateTableDebug(List<Record> found, String key, String value, Table mainTable, CommandContext ctx) {
+    void UpdateTableDebug(List<Record> found, String key, String value, CommandContext ctx) {
         try {
             for (Record record : found) {
-                if (mainTable.GetRecords().contains(record)) {
+                if (ctx.table.GetRecords().contains(record)) {
                     ctx.println(getAddInitMSG(key));
 
-                    int index = mainTable.GetRecords().indexOf(record);
+                    int index = ctx.table.GetRecords().indexOf(record);
                     record.AddKvP(key, value);                    
-                    mainTable.UpdateRecord(index, record);
+                    ctx.table.UpdateRecord(index, record);
                     
                     ctx.println(CLICommandRegistry.ExecutionMessages.SET_UPDATE_SUCCESS);
                 }

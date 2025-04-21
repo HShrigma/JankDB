@@ -6,6 +6,8 @@ import java.io.*;
 import java.util.List;
 
 import jankdb.helpers.CommandContext;
+
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import jankdb.cli.*;
@@ -25,24 +27,10 @@ public class REPLCLIManagerTest {
 
     private void executeCmd(String command) {
         String[] args = command.trim().split("\\s+");
-        REPLCommand cmd = replTestCommandLookup(args[0]);
+        REPLCommand cmd = repl.getCommands().get(args[0].toUpperCase());
         assertNotNull(cmd, "Command not found: " + args[0]);
-        CommandContext ctx = new CommandContext(true, out, repl.getMainTable());
-        cmd.Execute(args, repl.getMainTable(), ctx);
-    }
-
-    private REPLCommand replTestCommandLookup(String name) {
-        return switch (name.toUpperCase()) {
-            case "SET" -> new SetCommand();
-            case "GET" -> new GetCommand();
-            case "DEL" -> new DelCommand();
-            case "CLEAR" -> new ClearCommand();
-            case "HELP" -> new HelpCommand();
-            case "SAVE" -> new SaveCommand();
-            case "KEYS" -> new KeysCommand();
-            case "EXIT" -> new ExitCommand();
-            default -> null;
-        };
+        CommandContext ctx = new CommandContext(true, out, repl.getMainTable(), repl.getCommands(), repl.getTables());
+        cmd.Execute(args, ctx);
     }
 
     @Test
@@ -106,9 +94,50 @@ public class REPLCLIManagerTest {
 
     @Test
     public void testUnknownCommandHandledGracefully() {
-        // simulate a command not in registry
-        String[] args = {"FOOBAR"};
-        REPLCommand cmd = replTestCommandLookup(args[0]);
+        String[] args = { "FOOBAR" };
+        REPLCommand cmd = repl.getCommands().get(args[0].toUpperCase());
         assertNull(cmd, "FOOBAR should not be a valid command");
     }
+
+    @Test
+    public void testSelectCreatesAndUsesNewTable() {
+        executeCmd("SELECT myTable");
+
+        Table myTable = repl.getTables().get("myTable");
+        assertNotNull(myTable, "New table 'myTable' should have been created");
+
+        // Simulate SET foo bar on current table context
+        CommandContext ctx = new CommandContext(true, out, myTable, repl.getCommands(), repl.getTables());
+        REPLCommand setCmd = repl.getCommands().get("SET");
+        setCmd.Execute(new String[] { "SET", "foo", "bar" }, ctx);
+
+        assertEquals(1, myTable.Size());
+        assertTrue(myTable.GetRecords().get(0).GetData().containsKey("foo"));
+    }
+
+    @Test
+    public void testTablesCommandListsTables() {
+        // Use the REPL helper that ensures proper context
+        executeCmd("SELECT newT");
+        repl.getTables().get("newT").Save();
+
+        // Now run TABLES command and check output
+        outputStream.reset();
+        REPLCommand tablesCmd = repl.getCommands().get("TABLES");
+        CommandContext tablesCtx = new CommandContext(true, out, repl.getMainTable(), repl.getCommands(),
+                repl.getTables());
+        tablesCmd.Execute(new String[] { "TABLES" }, tablesCtx);
+        String result = outputStream.toString();
+
+        assertTrue(result.contains("main"), "Should contain default 'main' table");
+        assertTrue(result.contains("newT"), "Should contain newly created 'newT' table");
+    }
+
+    @AfterEach
+    public void cleanup() {
+        File f = new File("src/main/resources/store/newT.txt");
+        if (f.exists())
+            f.delete();
+    }
+
 }

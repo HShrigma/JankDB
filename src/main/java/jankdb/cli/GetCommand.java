@@ -7,17 +7,17 @@ import jankdb.helpers.CommandContext;
 public class GetCommand extends REPLCommand {
 
     @Override
-    public void Execute(String[] args, Table mainTable, CommandContext ctx) {
-        if (IsValidCommandSize(2, args, CLICommandRegistry.CommandSizeRules.GET)) {
+    public void Execute(String[] args, CommandContext ctx) {
+        if (IsValidCommand(2, args, CLICommandRegistry.CommandSizeRules.GET, ctx)) {
             // Prints value of key if found
             String key = args[1];
             ctx.println(getInitMSG(key));
             // If NOT found
-            if (mainTable.FindByKey(key).isEmpty()) {
+            if (ctx.table.FindByKey(key).isEmpty()) {
                 ctx.println(getKeyNotFoundMSG(key));
             } else { 
                 // If found
-                ctx.println(getKeyFoundMSG(key, mainTable));
+                ctx.println(getKeyFoundMSG(key, ctx.table));
             }
         }
     }
@@ -32,12 +32,12 @@ public class GetCommand extends REPLCommand {
                 + CLICommandRegistry.ExecutionMessages.GENERIC_NOT_FOUND_SUFFIX;
     }
 
-    String getKeyFoundMSG(String key, Table mainTable){
+    String getKeyFoundMSG(String key, Table table){
         StringBuilder stringBuilder = new StringBuilder();
         
         stringBuilder.append(CLICommandRegistry.ExecutionMessages.GET_FOUND + key).append('\n');
 
-        mainTable.FindByKey(key).forEach(match -> {
+        table.FindByKey(key).forEach(match -> {
             stringBuilder.append(match.toString()).append('\n');
         });
         return stringBuilder.toString();

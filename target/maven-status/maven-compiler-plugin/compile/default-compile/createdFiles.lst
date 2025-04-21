@@ -3,10 +3,12 @@ jankdb/helpers/CLICommandRegistry$BaseCommands.class
 jankdb/helpers/CLICommandRegistry.class
 jankdb/cli/ClearCommand.class
 jankdb/helpers/CLICommandRegistry$CommandGuides.class
+jankdb/cli/SelectCommand.class
 jankdb/helpers/CLICommandRegistry$CommandSizeRules.class
 jankdb/cli/HelpCommand.class
 jankdb/DBFile.class
 jankdb/helpers/CLICommandRegistry$ExecutionMessages.class
+jankdb/cli/TablesCommand.class
 jankdb/cli/ExitCommand.class
 jankdb/cli/KeysCommand.class
 jankdb/helpers/CLICommandRegistry$Messages.class

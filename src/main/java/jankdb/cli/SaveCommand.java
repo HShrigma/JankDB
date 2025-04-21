@@ -1,17 +1,16 @@
 package jankdb.cli;
 
-import jankdb.Table;
 import jankdb.helpers.*;
 
 public class SaveCommand extends REPLCommand {
 
     @Override
-    public void Execute(String[] args, Table mainTable, CommandContext ctx) {
-        if (IsValidCommandSize(1, args, CLICommandRegistry.CommandSizeRules.SAVE)) {
+    public void Execute(String[] args, CommandContext ctx) {
+        if (IsValidCommand(1, args, CLICommandRegistry.CommandSizeRules.SAVE, ctx)) {
             // Saves DB to persistent storage
             ctx.println(CLICommandRegistry.ExecutionMessages.SAVE_BEGIN);
             try {
-                mainTable.Save();
+                ctx.table.Save();
                 ctx.println(CLICommandRegistry.ExecutionMessages.SAVE_SUCCESS);
             } catch (Exception e) {
                 ctx.println(CLICommandRegistry.ExecutionMessages.SAVE_FAIL);

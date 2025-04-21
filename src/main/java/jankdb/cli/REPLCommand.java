@@ -1,11 +1,10 @@
 package jankdb.cli;
 
-import jankdb.Table;
 import jankdb.helpers.CLICommandRegistry;
 import jankdb.helpers.CommandContext;
 
 public abstract class REPLCommand {
-    public abstract void Execute(String[] args, Table mainTable, CommandContext ctx);
+    public abstract void Execute(String[] args, CommandContext ctx);
 
     public String name() {
         return this.getClass().getSimpleName().replace("Command", "").toUpperCase();
@@ -15,13 +14,17 @@ public abstract class REPLCommand {
         return "No help available for " + name();
     }
 
-    protected boolean IsValidCommandSize(int expectedSize, String[] arr, String formatMSG) {
-        if (arr.length == expectedSize)
+    protected boolean IsValidCommand(int expectedSize, String[] arr, String formatMSG, CommandContext ctx) {
+        if (arr.length == expectedSize && ctx.table != null)
             return true;
 
-        System.err.println(CLICommandRegistry.Messages.INVALID_SIZE_ERR);
-        System.out.println(formatMSG);
+        if (ctx.table == null)
+            ctx.println(CLICommandRegistry.Messages.TABLE_NULL_ERR);
 
+        if (arr.length != expectedSize) {
+            ctx.println(CLICommandRegistry.Messages.INVALID_SIZE_ERR);
+            ctx.println(formatMSG);
+        }
         return false;
     }
 }

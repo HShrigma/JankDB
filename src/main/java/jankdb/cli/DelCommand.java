@@ -1,6 +1,5 @@
 package jankdb.cli;
 
-import jankdb.Table;
 import jankdb.helpers.*;
 
 import jankdb.Record;
@@ -8,20 +7,20 @@ import jankdb.Record;
 public class DelCommand extends REPLCommand {
 
     @Override
-    public void Execute(String[] args, Table mainTable, CommandContext ctx) {
-        if (IsValidCommandSize(2, args, CLICommandRegistry.CommandSizeRules.DEL)) {
+    public void Execute(String[] args, CommandContext ctx) {
+        if (IsValidCommand(2, args, CLICommandRegistry.CommandSizeRules.DEL, ctx)) {
             // Deletes Key if found
             String key = args[1];
             ctx.println(getInitMSG(key));
 
             // Search for key
-            for (Record record : mainTable.GetRecords()) {
+            for (Record record : ctx.table.GetRecords()) {
                 // Safely try deleting if found
                 if (record.GetData().containsKey(key)) {
 
                     System.out.println(getKeyFoundMSG(key));
                     try {
-                        mainTable.DeleteRecord(mainTable.GetRecords().indexOf(record));
+                        ctx.table.DeleteRecord(ctx.table.GetRecords().indexOf(record));
                         // On successful deletion
                         System.out.println(CLICommandRegistry.ExecutionMessages.DEL_DELETED_SUCCESS);
                         return;

@@ -14,10 +14,19 @@ public class REPLCLIManager {
 
     private final Table mainTable;
     private final Map<String, REPLCommand> commands;
+    private final Map<String, Table> tables;
+
+    // Track selected table name
+    private Table currentTable;
 
     public REPLCLIManager() {
         mainTable = new Table("main");
+        currentTable = mainTable;
+
         commands = new HashMap<>();
+        tables = new HashMap<>();
+
+        tables.put("main", mainTable); // register main table
 
         // Register commands
         commands.put(CLICommandRegistry.BaseCommands.GET, new GetCommand());
@@ -28,6 +37,8 @@ public class REPLCLIManager {
         commands.put(CLICommandRegistry.BaseCommands.CLEAR, new ClearCommand());
         commands.put(CLICommandRegistry.BaseCommands.HELP, new HelpCommand());
         commands.put(CLICommandRegistry.BaseCommands.EXIT, new ExitCommand());
+        commands.put(CLICommandRegistry.BaseCommands.SELECT, new SelectCommand());
+        commands.put(CLICommandRegistry.BaseCommands.TABLES, new TablesCommand());
     }
 
     public void StartServerSide() {
@@ -91,11 +102,21 @@ public class REPLCLIManager {
         if (split.length == 0)
             return;
 
-        REPLCommand cmd = commands.get(split[0].toUpperCase());
+        String cmdName = split[0].toUpperCase();
+        REPLCommand cmd = commands.get(cmdName);
 
         if (cmd != null) {
-            CommandContext ctx = new CommandContext(isClient, out, mainTable);
-            cmd.Execute(split, mainTable, ctx);
+            // SELECT gets special treatment to change the currentTable
+            if (cmdName.equals(CLICommandRegistry.BaseCommands.SELECT)) {
+                if (split.length == 2) {
+                    String tableName = split[1];
+                    currentTable = tables.computeIfAbsent(tableName, Table::new);
+                }
+            }
+
+            // Provide context with selected table
+            CommandContext ctx = new CommandContext(isClient, out, currentTable, commands, tables);
+            cmd.Execute(split, ctx);
 
             if (!isClient) {
                 System.out.println("[server log] Executed: " + command);
@@ -112,8 +133,8 @@ public class REPLCLIManager {
         }
     }
 
-    public Table getMainTable() {
-        return mainTable;
+    public Map<String, REPLCommand> getCommands() {
+        return commands;
     }
 
     private void InitDB() {
@@ -130,4 +151,13 @@ public class REPLCLIManager {
     private String[] SplitCommand(String command) {
         return command.trim().split("\\s+");
     }
+
+    public Map<String, Table> getTables() {
+        return tables;
+    }
+
+    public Table getMainTable() {
+        return mainTable;
+    }
+
 }

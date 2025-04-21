@@ -14,6 +14,8 @@ public final class CLICommandRegistry {
         public static final String SAVE = "SAVE";
         public static final String CLEAR = "CLEAR";
         public static final String HELP = "HELP";
+        public static final String SELECT = "SELECT";
+        public static final String TABLES = "TABLES";
         public static final String EXIT = "EXIT";
     }
 
@@ -25,7 +27,7 @@ public final class CLICommandRegistry {
         public static final String TABLE_NOT_FOUND = "Table not created yet.\nCreating table main...";
         public static final String TABLE_FOUND = "Table successfully loaded. Session has started";
         public static final String UNRECOGNIZED_COMMAND_ERR = "Command not recognized! Use \"HELP\" to see all valid commands.";
-
+        public static final String TABLE_NULL_ERR = "Error: No table is sellected!\n Use \"TABLES\" to see available tables \nand \"SELECT\" to choose/create a table.";
     }
 
     public static final class CommandSizeRules {
@@ -37,6 +39,8 @@ public final class CLICommandRegistry {
         public static final String CLEAR = "CLEAR has no arguments!";
         public static final String HELP = "HELP has no arguments!";
         public static final String EXIT = "EXIT has no arguments!";
+        public static final String SELECT = "SELECT must have 1 argument formatted as: SELECT <tableName>";
+        public static final String TABLES = "TABLES has on arguments!";
     }
 
     public static final class CommandGuides {
@@ -48,6 +52,9 @@ public final class CLICommandRegistry {
         public static final String CLEAR = "CLEAR removes all entries in the database.";
         public static final String HELP = "HELP lists all available actions.";
         public static final String EXIT = "EXIT terminates the current session.";
+        public static final String SELECT = "SELECT <tableName> - Select or create a table";
+        public static final String TABLES = "TABLES - List all tables in the database";
+
     }
 
     public static final class ExecutionMessages {
@@ -68,7 +75,7 @@ public final class CLICommandRegistry {
         public static final String DEL_FOUND_PREFIX = "Found Key: ";
         public static final String DEL_FOUND_SUFFIX = "!\nDeleting...";
         public static final String DEL_DELETED_SUCCESS = "Deletion was successful";
-        public static final String DEL_DELETED_FAIL= "An error occured while attempting to delete key. Please try again.";
+        public static final String DEL_DELETED_FAIL = "An error occured while attempting to delete key. Please try again.";
         public static final String GENERIC_NOT_FOUND_PREFIX = "Could not find Key: ";
         public static final String GENERIC_NOT_FOUND_SUFFIX = "!\nAre you sure this key exists? Try using the KEYS command to verify.";
         public static final String KEYS_BEGIN = "Retrieving all keys...";

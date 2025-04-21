@@ -1,82 +1,73 @@
 package jankdb.cli;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
 
 import jankdb.Table;
 import jankdb.Record;
-import jankdb.helpers.CLICommandRegistry;
+import jankdb.helpers.*;
 
 public class SetCommand extends REPLCommand {
 
     @Override
-    public void Execute(String[] args, Table mainTable) {
+    public void Execute(String[] args, Table mainTable, CommandContext ctx) {
         if (IsValidCommandSize(3, args, CLICommandRegistry.CommandSizeRules.SET)) {
             // Sets Key to Value if found
             String key = args[1];
             String value = args[2];
             List<Record> found = mainTable.FindByKey(key);
             if (found.isEmpty()) {
-                System.out.println(AddToTableDebug(key, value, mainTable));
+                // Add new value to table if key not found
+                AddToTableDebug(key, value, mainTable, ctx);
             } else {
-                System.out.println(UpdateTableDebug(found, key, value, mainTable));
+                // Update existing table entry if key found
+                UpdateTableDebug(found, key, value, mainTable, ctx);
             }
         }
     }
 
-    String AddToTableDebug(String key, String value, Table mainTable) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(CLICommandRegistry.ExecutionMessages.SET_ADD_PREFIX + key
-                + CLICommandRegistry.ExecutionMessages.SET_ADD_SUFFIX).append('\n');
-
+    void AddToTableDebug(String key, String value, Table mainTable, CommandContext ctx) {
+        ctx.println(getAddInitMSG(key));
         try {
-            Record r = new Record(key + "=" + value + ";");
-            mainTable.AddRecord(r);
-            stringBuilder.append(CLICommandRegistry.ExecutionMessages.SET_ADD_SUCCESS).append('\n');
+            // Add new record as serialized string
+            mainTable.AddRecord(new Record(key + "=" + value + ";"));
+
+            // On successful add
+            ctx.println(CLICommandRegistry.ExecutionMessages.SET_ADD_SUCCESS);
         } catch (Exception f) {
 
-            stringBuilder.append(CLICommandRegistry.ExecutionMessages.SET_ADD_FAIL).append('\n');
+            // On failed add print error message
+            ctx.println(CLICommandRegistry.ExecutionMessages.SET_ADD_FAIL);
         }
-        return stringBuilder.toString();
     }
 
-    String UpdateTableDebug(List<Record> found, String key, String value, Table mainTable) {
-        StringBuilder stringBuilder = new StringBuilder();
+    void UpdateTableDebug(List<Record> found, String key, String value, Table mainTable, CommandContext ctx) {
         try {
             for (Record record : found) {
                 if (mainTable.GetRecords().contains(record)) {
-                    stringBuilder.append(CLICommandRegistry.ExecutionMessages.SET_UPDATE_PREFIX + key
-                            + CLICommandRegistry.ExecutionMessages.SET_UPDATE_SUFFIX).append('\n');
+                    ctx.println(getAddInitMSG(key));
+
                     int index = mainTable.GetRecords().indexOf(record);
-                    record.AddKvP(key, value);
+                    record.AddKvP(key, value);                    
                     mainTable.UpdateRecord(index, record);
-                    stringBuilder.append(CLICommandRegistry.ExecutionMessages.SET_UPDATE_SUCCESS).append('\n');
+                    
+                    ctx.println(CLICommandRegistry.ExecutionMessages.SET_UPDATE_SUCCESS);
                 }
             }
         } catch (Exception e) {
-            stringBuilder.append(CLICommandRegistry.ExecutionMessages.SET_UPDATE_FAIL).append('\n');
+            ctx.println(CLICommandRegistry.ExecutionMessages.SET_UPDATE_FAIL);
         }
-        return stringBuilder.toString();
     }
 
+    String getAddInitMSG(String key) {
+        return CLICommandRegistry.ExecutionMessages.SET_ADD_PREFIX + key
+                + CLICommandRegistry.ExecutionMessages.SET_ADD_SUFFIX;
+    }
+    String getUpdateInitMSG(String key){
+        return CLICommandRegistry.ExecutionMessages.SET_UPDATE_PREFIX + key
+        + CLICommandRegistry.ExecutionMessages.SET_UPDATE_SUFFIX;
+    }
     @Override
     public String Help() {
         return CLICommandRegistry.CommandGuides.SET;
-    }
-
-    @Override
-    public void ExecuteClientSide(String[] args, Table mainTable, PrintWriter out) throws IOException {
-        if (IsValidCommandSizeClientSide(3, args, CLICommandRegistry.CommandSizeRules.SET, out)) {
-            // Sets Key to Value if found
-            String key = args[1];
-            String value = args[2];
-            List<Record> found = mainTable.FindByKey(key);
-            if (found.isEmpty()) {
-                out.println(AddToTableDebug(key, value, mainTable));
-            } else {
-                out.println(UpdateTableDebug(found, key, value, mainTable));
-            }
-        }
     }
 }

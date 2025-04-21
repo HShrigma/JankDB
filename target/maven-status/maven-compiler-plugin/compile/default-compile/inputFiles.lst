@@ -6,6 +6,7 @@
 /mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/cli/ExitCommand.java
 /mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/cli/ClearCommand.java
 /mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/cli/KeysCommand.java
+/mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/helpers/CommandContext.java
 /mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/cli/SaveCommand.java
 /mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/REPLCLIManager.java
 /mnt/Storage/VSCode/JavaProjects/JankDB/src/main/java/jankdb/cli/DelCommand.java

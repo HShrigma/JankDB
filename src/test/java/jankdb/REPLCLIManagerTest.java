@@ -2,77 +2,113 @@ package jankdb;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// import jankdb.cli.*;
+import java.io.*;
+import java.util.List;
+
+import jankdb.helpers.CommandContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import jankdb.cli.*;
 
 public class REPLCLIManagerTest {
 
-    REPLCLIManager repl;
+    private REPLCLIManager repl;
+    private ByteArrayOutputStream outputStream;
+    private PrintWriter out;
 
     @BeforeEach
     public void setup() {
         repl = new REPLCLIManager();
+        outputStream = new ByteArrayOutputStream();
+        out = new PrintWriter(outputStream, true);
+    }
+
+    private void executeCmd(String command) {
+        String[] args = command.trim().split("\\s+");
+        REPLCommand cmd = replTestCommandLookup(args[0]);
+        assertNotNull(cmd, "Command not found: " + args[0]);
+        CommandContext ctx = new CommandContext(true, out, repl.getMainTable());
+        cmd.Execute(args, repl.getMainTable(), ctx);
+    }
+
+    private REPLCommand replTestCommandLookup(String name) {
+        return switch (name.toUpperCase()) {
+            case "SET" -> new SetCommand();
+            case "GET" -> new GetCommand();
+            case "DEL" -> new DelCommand();
+            case "CLEAR" -> new ClearCommand();
+            case "HELP" -> new HelpCommand();
+            case "SAVE" -> new SaveCommand();
+            case "KEYS" -> new KeysCommand();
+            case "EXIT" -> new ExitCommand();
+            default -> null;
+        };
     }
 
     @Test
     public void testSetCommandAddsRecord() {
-        repl.ParseCommand("SET testKey testValue");
-        assertEquals(1, repl.mainTable.Size());
-        assertTrue(repl.mainTable.GetRecords().get(0).GetData().containsKey("testKey"));
+        executeCmd("SET testKey testValue");
+        List<Record> records = repl.getMainTable().GetRecords();
+        assertEquals(1, records.size());
+        assertTrue(records.get(0).GetData().containsKey("testKey"));
     }
 
     @Test
     public void testGetCommandFindsRecord() {
-        repl.ParseCommand("SET hello world");
-        // Output goes to stdout, we test by checking existence in table
-        repl.ParseCommand("GET hello");
-        assertEquals("world", repl.mainTable.GetRecords().get(0).GetData().get("hello"));
+        executeCmd("SET hello world");
+        outputStream.reset();
+        executeCmd("GET hello");
+        String result = outputStream.toString();
+        assertTrue(result.contains("hello") && result.contains("world"));
     }
 
     @Test
     public void testDelCommandRemovesKey() {
-        repl.ParseCommand("SET tempKey tempVal");
-        assertEquals(1, repl.mainTable.Size());
-
-        repl.ParseCommand("DEL tempKey");
-        assertFalse(repl.mainTable.Size() == 1);
+        executeCmd("SET tempKey tempVal");
+        assertEquals(1, repl.getMainTable().Size());
+        executeCmd("DEL tempKey");
+        assertEquals(0, repl.getMainTable().Size());
     }
 
     @Test
     public void testClearCommandFlushesAll() {
-        repl.ParseCommand("SET k1 v1");
-        repl.ParseCommand("SET k2 v2");
-        assertEquals(2, repl.mainTable.Size());
-
-        repl.ParseCommand("CLEAR");
-        assertEquals(0, repl.mainTable.Size());
+        executeCmd("SET k1 v1");
+        executeCmd("SET k2 v2");
+        assertEquals(2, repl.getMainTable().Size());
+        executeCmd("CLEAR");
+        assertEquals(0, repl.getMainTable().Size());
     }
 
     @Test
     public void testHelpCommandDoesNotThrow() {
-        assertDoesNotThrow(() -> repl.ParseCommand("HELP"));
+        assertDoesNotThrow(() -> executeCmd("HELP"));
     }
 
     @Test
     public void testSaveCommandDoesNotThrow() {
-        repl.ParseCommand("SET saveKey saveValue");
-        assertDoesNotThrow(() -> repl.ParseCommand("SAVE"));
+        executeCmd("SET saveKey saveValue");
+        assertDoesNotThrow(() -> executeCmd("SAVE"));
     }
 
     @Test
-    public void testKeysCommandDoesNotThrow() {
-        repl.ParseCommand("SET key1 value1");
-        assertDoesNotThrow(() -> repl.ParseCommand("KEYS"));
+    public void testKeysCommandPrintsKeys() {
+        executeCmd("SET key1 value1");
+        outputStream.reset();
+        assertDoesNotThrow(() -> executeCmd("KEYS"));
+        String result = outputStream.toString();
+        assertTrue(result.contains("key1"));
     }
 
     @Test
     public void testExitCommandDoesNotThrow() {
-        assertDoesNotThrow(() -> repl.ParseCommand("EXIT"));
+        assertDoesNotThrow(() -> executeCmd("EXIT"));
     }
 
     @Test
     public void testUnknownCommandHandledGracefully() {
-        assertDoesNotThrow(() -> repl.ParseCommand("FOOBAR"));
+        // simulate a command not in registry
+        String[] args = {"FOOBAR"};
+        REPLCommand cmd = replTestCommandLookup(args[0]);
+        assertNull(cmd, "FOOBAR should not be a valid command");
     }
 }

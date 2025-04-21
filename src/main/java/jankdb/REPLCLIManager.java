@@ -7,13 +7,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-import jankdb.helpers.*;
 import jankdb.cli.*;
+import jankdb.helpers.*;
 
 public class REPLCLIManager {
 
-    Table mainTable;
-    Map<String, REPLCommand> commands;
+    private final Table mainTable;
+    private final Map<String, REPLCommand> commands;
 
     public REPLCLIManager() {
         mainTable = new Table("main");
@@ -32,81 +32,91 @@ public class REPLCLIManager {
 
     public void StartServerSide() {
         System.out.println(CLICommandRegistry.Messages.GREETING);
-        RunServerSide();
-    }
-
-    void RunServerSide() {
-        InitDB();
-        Scanner scanner = new Scanner(System.in);
-        String command = GetCommand(scanner);
-        while (IsNotExit(command)) {
-            if (!command.equals("")) {
-                ParseCommand(command);
-            }
-            command = GetCommand(scanner);
+        try {
+            Run(null, null, false, null);
+        } catch (IOException e) {
+            System.err.println("REPLCLIManager:StartServerSide: Error trying to start on server side");
+            e.printStackTrace();
         }
-        scanner.close();
     }
 
     public void StartClientSide(PrintWriter out, BufferedReader in) throws IOException {
+        StartClientSide(out, in, null);
+    }
+
+    public void StartClientSide(PrintWriter out, BufferedReader in, String clientKey) throws IOException {
         out.println(CLICommandRegistry.Messages.GREETING);
-        RunClientSide(out, in);
+        Run(out, in, true, clientKey);
     }
 
-    void RunClientSide(PrintWriter out, BufferedReader in) throws IOException {
+    private void Run(PrintWriter out, BufferedReader in, boolean isClient, String clientKey) throws IOException {
         InitDB();
-        String command = GetCommandClientSide(out, in);
+
+        Scanner scanner = null;
+        if (!isClient) {
+            scanner = new Scanner(System.in);
+        }
+
+        String command = getCommand(isClient, out, in, scanner);
         while (IsNotExit(command)) {
-            if (!command.equals("")) {
-                ParseCommandClientSide(command, out, in);
+            if (!command.isEmpty()) {
+                executeCommand(command, isClient, out, clientKey);
             }
-            command = GetCommandClientSide(out, in);
+            command = getCommand(isClient, out, in, scanner);
+        }
+
+        if (scanner != null)
+            scanner.close();
+    }
+
+    private String getCommand(boolean isClient, PrintWriter out, BufferedReader in, Scanner scanner)
+            throws IOException {
+        if (isClient) {
+            out.println(CLICommandRegistry.Messages.REQ_COMMAND);
+            out.println();
+            return InputSanitizer.sanitize(in.readLine());
+        } else {
+            System.out.println(CLICommandRegistry.Messages.REQ_COMMAND);
+            System.out.println();
+            return InputSanitizer.sanitize(scanner.nextLine());
         }
     }
 
-    String GetCommand(Scanner scanner) {
-        System.out.println(CLICommandRegistry.Messages.REQ_COMMAND);
-        System.out.println();
-        return InputSanitizer.sanitize(scanner.nextLine());
+    private boolean IsNotExit(String command) {
+        return !command.equalsIgnoreCase(CLICommandRegistry.BaseCommands.EXIT);
     }
 
-    String GetCommandClientSide(PrintWriter out, BufferedReader in) throws IOException {
-        out.println(CLICommandRegistry.Messages.REQ_COMMAND);
-        out.println();
-        return InputSanitizer.sanitize(in.readLine());
-    }
-
-    boolean IsNotExit(String command) {
-        return !command.equals(CLICommandRegistry.BaseCommands.EXIT);
-    }
-
-    void ParseCommand(String command) {
+    private void executeCommand(String command, boolean isClient, PrintWriter out, String clientKey) {
         String[] split = SplitCommand(command);
         if (split.length == 0)
             return;
 
-        REPLCommand cmd = commands.get(split[0]);
+        REPLCommand cmd = commands.get(split[0].toUpperCase());
+
         if (cmd != null) {
-            cmd.Execute(split, mainTable);
+            CommandContext ctx = new CommandContext(isClient, out, mainTable);
+            cmd.Execute(split, mainTable, ctx);
+
+            if (!isClient) {
+                System.out.println("[server log] Executed: " + command);
+            } else if (clientKey != null) {
+                System.out.println("[server log] Client " + clientKey + " executed: " + command);
+            }
+
         } else {
-            System.out.println("Unknown command: " + split[0]);
+            if (isClient) {
+                out.println("Unknown command: " + split[0]);
+            } else {
+                System.out.println("Unknown command: " + split[0]);
+            }
         }
     }
 
-    void ParseCommandClientSide(String command, PrintWriter out, BufferedReader in) throws IOException {
-        String[] split = SplitCommand(command);
-        if (split.length == 0)
-            return;
-
-        REPLCommand cmd = commands.get(split[0]);
-        if (cmd != null) {
-            cmd.ExecuteClientSide(split, mainTable, out);
-        } else {
-            out.println("Unknown command: " + split[0]);
-        }
+    public Table getMainTable() {
+        return mainTable;
     }
 
-    void InitDB() {
+    private void InitDB() {
         try {
             mainTable.Load();
         } catch (Exception e) {
@@ -117,7 +127,7 @@ public class REPLCLIManager {
         }
     }
 
-    String[] SplitCommand(String command) {
+    private String[] SplitCommand(String command) {
         return command.trim().split("\\s+");
     }
 }

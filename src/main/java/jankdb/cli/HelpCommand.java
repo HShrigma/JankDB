@@ -1,29 +1,19 @@
 package jankdb.cli;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-
 import jankdb.Table;
-import jankdb.helpers.CLICommandRegistry;
+import jankdb.helpers.*;
 
 public class HelpCommand extends REPLCommand {
 
     @Override
-    public void Execute(String[] args, Table mainTable) {
+    public void Execute(String[] args, Table mainTable, CommandContext ctx) {
         if (IsValidCommandSize(1, args, CLICommandRegistry.CommandSizeRules.HELP)) {
             // Prints all command Guidelines
-            System.out.println(buildResponseStream());
+            ctx.println(getHelpMSG());
         }
     }
 
-    @Override
-    public void ExecuteClientSide(String[] args, Table mainTable, PrintWriter out) throws IOException {
-        if (IsValidCommandSizeClientSide(1, args, CLICommandRegistry.CommandSizeRules.HELP, out)) {
-            out.println(buildResponseStream());
-        }
-    }
-
-    String buildResponseStream() {
+    String getHelpMSG() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(CLICommandRegistry.CommandGuides.GET).append('\n');
         stringBuilder.append(CLICommandRegistry.CommandGuides.SET).append('\n');

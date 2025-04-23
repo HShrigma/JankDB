@@ -1,6 +1,6 @@
 # JankDB 🏗️
 
-**A lightweight multi-threaded key-value store with persistent storage, written in Java**
+**A lightweight multi-threaded key-value store with persistent storage, running over TCP, written in Java**
 
 [![Java](https://img.shields.io/badge/Java-17+-orange.svg)](https://java.com)
 
